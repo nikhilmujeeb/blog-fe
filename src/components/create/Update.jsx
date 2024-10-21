@@ -72,19 +72,25 @@ const Update = () => {
     }, []);
 
     useEffect(() => {
-        const getImage = async () => { 
-            if(file) {
+        const uploadImage = async () => {
+            if (file) {
                 const data = new FormData();
-                data.append("name", file.name);
-                data.append("file", file);
-                
-                const response = await API.uploadFile(data);
-                if (response.isSuccess) {
-                    post.picture = response.data;
-                    setImageURL(response.data);    
+                data.append('name', file.name);
+                data.append('file', file);
+        
+                try {
+                    const response = await API.uploadFile(data);
+                    if (response.isSuccess) {
+                        setPost((prevPost) => ({
+                            ...prevPost,
+                            picture: response.data
+                        }));
+                    }
+                } catch (error) {
+                    console.error('Error uploading file:', error);
                 }
             }
-        }
+        };        
         getImage();
     }, [file])
 
