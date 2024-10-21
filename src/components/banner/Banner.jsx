@@ -3,7 +3,7 @@ import { styled, Box, Typography } from '@mui/material';
 
 const Image = styled(Box)`
     width: 100%;
-    background: url(https://www.blogtyrant.com/wp-content/uploads/2019/07/draft-a-post.jpg) center/55% repeat-x #000;
+    background: url(https://www.blogtyrant.com/wp-content/uploads/2019/07/draft-a-post.jpg) center/cover no-repeat #000;
     height: 50vh;
     display: flex;
     flex-direction: column;
@@ -11,25 +11,30 @@ const Image = styled(Box)`
     justify-content: center;
 `;
 
-const Heading = styled(Typography)`
-    font-size: 70px;
-    color: #FFFFFF;
-    line-height: 1
-`;
+const Heading = styled(Typography)(({ theme }) => ({
+    fontSize: '4rem',
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '2.5rem',
+    },
+    color: '#FFFFFF',
+    lineHeight: 1,
+}));
 
-const SubHeading = styled(Typography)`
-    font-size: 20px;
-    color: #FFFFFF;
-`;
+const SubHeading = styled(Typography)(({ theme }) => ({
+    fontSize: '1.5rem',
+    [theme.breakpoints.down('sm')]: {
+        fontSize: '1rem',
+    },
+    color: '#FFFFFF',
+}));
 
 const Banner = () => {
-    
     return (
-        <Image>
+        <Image aria-label="Blog Banner">
             <Heading>BLOG</Heading>
             <SubHeading>Share What Your Heart Desire</SubHeading>
         </Image>
-    )
-}
+    );
+};
 
 export default Banner;

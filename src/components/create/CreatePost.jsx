@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import {
     styled, Box, TextareaAutosize, Button, InputBase, FormControl, 
-    Select, MenuItem, InputLabel, CircularProgress
+    Select, MenuItem, InputLabel, CircularProgress, Snackbar
 } from '@mui/material';
 import { AddCircle as Add } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
@@ -55,11 +55,12 @@ const initialPost = {
 
 const CreatePost = () => {
     const navigate = useNavigate();
+    const { account } = useContext(DataContext);
     const [post, setPost] = useState(initialPost);
     const [file, setFile] = useState('');
     const [category, setCategory] = useState('Music');
-    const { account } = useContext(DataContext);
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(false);
 
     const url = post.picture || 
         'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
@@ -110,9 +111,10 @@ const CreatePost = () => {
         if (response.isSuccess) {
             setPost(initialPost); // Clear the form
             setFile('');
+            setCategory('Music'); // Reset category
             navigate('/');
         } else {
-            alert('Failed to save the post. Please try again.');
+            setError(true); // Trigger snackbar for error message
         }
     };
 
@@ -129,6 +131,7 @@ const CreatePost = () => {
                     id="fileInput"
                     style={{ display: 'none' }}
                     onChange={handleFileChange}
+                    aria-label="Upload File"
                 />
                 <InputTextField 
                     onChange={handleChange} 
@@ -140,7 +143,7 @@ const CreatePost = () => {
                     onClick={savePost} 
                     variant="contained" 
                     color="primary"
-                    disabled={loading}
+                    disabled={loading || !post.title || !post.description}
                 >
                     {loading ? <CircularProgress size={24} /> : 'Publish'}
                 </Button>
@@ -167,6 +170,13 @@ const CreatePost = () => {
                 name="description"
                 value={post.description}
                 onChange={handleChange}
+            />
+
+            <Snackbar
+                open={error}
+                autoHideDuration={6000}
+                onClose={() => setError(false)}
+                message="Failed to save the post. Please try again."
             />
         </Container>
     );

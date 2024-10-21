@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Box, styled, TextareaAutosize, Button, FormControl, InputBase } from '@mui/material';
+import {
+    Box, styled, TextareaAutosize, Button, FormControl, InputBase, CircularProgress, Snackbar
+} from '@mui/material';
 import { AddCircle as Add } from '@mui/icons-material';
 import { useNavigate, useParams } from 'react-router-dom';
 import { API } from '../../service/api';
 
 const Container = styled(Box)(({ theme }) => ({
     margin: '50px 100px',
-    [theme.breakpoints.down('md')]: {
-        margin: 0
-    }
+    [theme.breakpoints.down('md')]: { margin: 0 }
 }));
 
 const Image = styled('img')({
@@ -46,26 +46,32 @@ const initialPost = {
     username: 'codeforinterview',
     categories: 'Tech',
     createdDate: new Date()
-}
+};
 
 const Update = () => {
     const navigate = useNavigate();
+    const { id } = useParams();
     const [post, setPost] = useState(initialPost);
     const [file, setFile] = useState('');
     const [imageURL, setImageURL] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState('');
+    const [openSnackbar, setOpenSnackbar] = useState(false);
 
-    const { id } = useParams();
-    
-    const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
-    
+    const defaultImage = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixlib=rb-1.2.1&w=1000&q=80';
+
     useEffect(() => {
         const fetchData = async () => {
-            let response = await API.getPostById(id);
-            if (response.isSuccess) {
-                setPost(response.data);
-                setImageURL(response.data.picture); // Set existing image URL
+            try {
+                const response = await API.getPostById(id);
+                if (response.isSuccess) {
+                    setPost(response.data);
+                    setImageURL(response.data.picture);
+                }
+            } catch (error) {
+                console.error('Error fetching post data:', error);
             }
-        }
+        };
         fetchData();
     }, [id]);
 
@@ -75,7 +81,7 @@ const Update = () => {
                 const data = new FormData();
                 data.append('name', file.name);
                 data.append('file', file);
-        
+
                 try {
                     const response = await API.uploadFile(data);
                     if (response.isSuccess) {
@@ -85,28 +91,44 @@ const Update = () => {
                         }));
                     }
                 } catch (error) {
-                    console.error('Error uploading file:', error);
+                    setError('Error uploading file.');
                 }
             }
         };
-        
-        uploadImage(); // Call uploadImage instead of getImage
+        uploadImage();
     }, [file]);
 
     const updateBlogPost = async () => {
-        await API.updatePost(post);
-        navigate(`/post/${id}`);
-    }
+        if (!post.title || !post.description) {
+            setError('Title and description cannot be empty.');
+            setOpenSnackbar(true);
+            return;
+        }
+        setLoading(true);
+        try {
+            const response = await API.updatePost(post);
+            if (response.isSuccess) {
+                navigate(`/post/${id}`);
+            } else {
+                setError('Failed to update the post.');
+            }
+        } catch (error) {
+            console.error('Error updating post:', error);
+            setError('An error occurred. Please try again.');
+        } finally {
+            setLoading(false);
+            setOpenSnackbar(true);
+        }
+    };
 
     const handleChange = (e) => {
         setPost({ ...post, [e.target.name]: e.target.value });
-    }
+    };
 
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
         setFile(selectedFile);
 
-        // Preview the image
         const reader = new FileReader();
         reader.onloadend = () => {
             setImageURL(reader.result);
@@ -114,9 +136,13 @@ const Update = () => {
         reader.readAsDataURL(selectedFile);
     };
 
+    const handleCloseSnackbar = () => {
+        setOpenSnackbar(false);
+    };
+
     return (
         <Container>
-            <Image src={imageURL || post.picture || url} alt="post" /> {/* Use imageURL for preview */}
+            <Image src={imageURL || post.picture || defaultImage} alt="post" />
 
             <StyledFormControl>
                 <label htmlFor="fileInput">
@@ -126,21 +152,40 @@ const Update = () => {
                     type="file"
                     id="fileInput"
                     style={{ display: "none" }}
-                    onChange={handleFileChange} // Updated to use the new handleFileChange function
+                    onChange={handleFileChange}
                 />
-                <InputTextField onChange={handleChange} value={post.title} name='title' placeholder="Title" />
-                <Button onClick={updateBlogPost} variant="contained" color="primary">Update</Button>
+                <InputTextField
+                    onChange={handleChange}
+                    value={post.title}
+                    name="title"
+                    placeholder="Title"
+                />
+                <Button
+                    onClick={updateBlogPost}
+                    variant="contained"
+                    color="primary"
+                    disabled={loading}
+                >
+                    {loading ? <CircularProgress size={24} /> : 'Update'}
+                </Button>
             </StyledFormControl>
 
             <StyledTextArea
-                rowsMin={5}
+                minRows={5}
                 placeholder="Tell your story..."
-                name='description'
-                onChange={handleChange} 
+                name="description"
+                onChange={handleChange}
                 value={post.description}
             />
+
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={4000}
+                onClose={handleCloseSnackbar}
+                message={error || 'Post updated successfully!'}
+            />
         </Container>
-    )
-}
+    );
+};
 
 export default Update;

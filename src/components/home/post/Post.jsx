@@ -16,19 +16,20 @@ const Container = styled(Box)`
 
 const Image = styled('img')({
     width: '100%',
+    maxWidth: '350px', // Prevents stretching on large screens
     objectFit: 'cover',
     borderRadius: '10px 10px 0 0',
-    height: 150
+    height: 150,
 });
 
 const Text = styled(Typography)`
-    color: #878787
+    color: #878787;
     font-size: 12px;
 `;
 
 const Heading = styled(Typography)`
     font-size: 18px;
-    font-weight: 600
+    font-weight: 600;
 `;
 
 const Details = styled(Typography)`
@@ -37,21 +38,28 @@ const Details = styled(Typography)`
 `;
 
 const Post = ({ post }) => {
-    const url = post.picture ? post.picture : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80';
-    
-    const addEllipsis = (str, limit) => {
+    const url = post.picture 
+        ? post.picture 
+        : 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=752&q=80';
+
+    const addEllipsis = (str = '', limit) => {
         return str.length > limit ? str.substring(0, limit) + '...' : str;
-    } 
+    };
+
+    const displayCategories = () => 
+        Array.isArray(post.categories) 
+            ? post.categories.join(', ') 
+            : post.categories;
 
     return (
         <Container>
-            <Image src={url} alt="post" />
-            <Text>{post.categories}</Text>
+            <Image src={url} alt="Post Image" />
+            <Text>{displayCategories()}</Text>
             <Heading>{addEllipsis(post.title, 20)}</Heading>
             <Text>Author: {post.username}</Text>
             <Details>{addEllipsis(post.description, 100)}</Details>
         </Container>
-    )
-}
+    );
+};
 
 export default Post;

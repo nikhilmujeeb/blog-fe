@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { TextField, Box, Button, Typography, styled } from '@mui/material';
+import { TextField, Box, Button, Typography, styled, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
@@ -72,7 +72,8 @@ const signupInitialValues = {
 const Login = ({ isUserAuthenticated }) => {
     const [login, setLogin] = useState(loginInitialValues);
     const [signup, setSignup] = useState(signupInitialValues);
-    const [error, showError] = useState('');
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const [account, toggleAccount] = useState('login');
 
     const navigate = useNavigate();
@@ -81,22 +82,30 @@ const Login = ({ isUserAuthenticated }) => {
     const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';
 
     useEffect(() => {
-        showError('');
+        setError('');
     }, [login, signup]);
 
     const onValueChange = (e) => {
         setLogin({ ...login, [e.target.name]: e.target.value });
+        setError(''); // Clear error on input change
     }
 
     const onInputChange = (e) => {
         setSignup({ ...signup, [e.target.name]: e.target.value });
+        setError(''); // Clear error on input change
     }
 
     const loginUser = async () => {
+        if (!login.username || !login.password) {
+            setError('Please enter username and password');
+            return;
+        }
+
+        setLoading(true);
         try {
             const response = await API.userLogin(login);
             if (response.isSuccess) {
-                showError('');
+                setError('');
                 sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
                 sessionStorage.setItem('refreshToken', `Bearer ${response.data.refreshToken}`);
                 setAccount({ name: response.data.name, username: response.data.username });
@@ -104,27 +113,37 @@ const Login = ({ isUserAuthenticated }) => {
                 setLogin(loginInitialValues);
                 navigate('/');
             } else {
-                showError(response.msg || 'Something went wrong! Please try again later');
+                setError(response.msg || 'Something went wrong! Please try again later');
             }
         } catch (error) {
             console.error("Login error:", error);
-            showError('An unexpected error occurred. Please try again later.');
+            setError('An unexpected error occurred. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     }
 
     const signupUser = async () => {
+        if (!signup.name || !signup.username || !signup.password) {
+            setError('Please fill in all fields');
+            return;
+        }
+
+        setLoading(true);
         try {
             const response = await API.userSignup(signup);
             if (response.isSuccess) {
-                showError('');
+                setError('');
                 setSignup(signupInitialValues);
                 toggleAccount('login');
             } else {
-                showError(response.msg || 'Something went wrong! Please try again later');
+                setError(response.msg || 'Something went wrong! Please try again later');
             }
         } catch (error) {
             console.error("Signup error:", error);
-            showError('An unexpected error occurred. Please try again later.');
+            setError('An unexpected error occurred. Please try again later.');
+        } finally {
+            setLoading(false);
         }
     }
 
@@ -142,7 +161,9 @@ const Login = ({ isUserAuthenticated }) => {
                             <TextField variant="standard" value={login.username} onChange={onValueChange} name='username' label='Enter Username' />
                             <TextField variant="standard" type="password" value={login.password} onChange={onValueChange} name='password' label='Enter Password' />
                             {error && <Error>{error}</Error>}
-                            <LoginButton variant="contained" onClick={loginUser}>Login</LoginButton>
+                            <LoginButton variant="contained" onClick={loginUser} disabled={loading}>
+                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Login'}
+                            </LoginButton>
                             <Text style={{ textAlign: 'center' }}>OR</Text>
                             <SignupButton onClick={toggleSignup} style={{ marginBottom: 50 }}>Create an account</SignupButton>
                         </Wrapper>
@@ -151,7 +172,10 @@ const Login = ({ isUserAuthenticated }) => {
                             <TextField variant="standard" onChange={onInputChange} name='name' label='Enter Name' />
                             <TextField variant="standard" onChange={onInputChange} name='username' label='Enter Username' />
                             <TextField variant="standard" type="password" onChange={onInputChange} name='password' label='Enter Password' />
-                            <SignupButton onClick={signupUser}>Signup</SignupButton>
+                            {error && <Error>{error}</Error>}
+                            <SignupButton onClick={signupUser} disabled={loading}>
+                                {loading ? <CircularProgress size={24} color="inherit" /> : 'Signup'}
+                            </SignupButton>
                             <Text style={{ textAlign: 'center' }}>OR</Text>
                             <LoginButton variant="contained" onClick={toggleSignup}>Already have an account</LoginButton>
                         </Wrapper>

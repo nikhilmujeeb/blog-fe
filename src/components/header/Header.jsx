@@ -1,9 +1,7 @@
-import React from 'react';
-import { AppBar, Toolbar, styled } from '@mui/material'; 
-import { Link } from 'react-router-dom';
-
-import { useNavigate } from 'react-router-dom';
-
+import React, { useState } from 'react';
+import { AppBar, Toolbar, styled, IconButton, Drawer, Box, Typography } from '@mui/material';
+import { NavLink, useNavigate } from 'react-router-dom';
+import MenuIcon from '@mui/icons-material/Menu';
 
 const Component = styled(AppBar)`
     background: #FFFFFF;
@@ -16,25 +14,68 @@ const Container = styled(Toolbar)`
         padding: 20px;
         color: #000;
         text-decoration: none;
+        font-weight: 500;
     }
-`
+    & a.active {
+        color: #1976d2;  /* Highlight active link */
+        border-bottom: 2px solid #1976d2;
+    }
+`;
+
+const MenuButton = styled(IconButton)(({ theme }) => ({
+    display: 'none',
+    [theme.breakpoints.down('sm')]: {
+        display: 'block',
+    },
+}));
+
+const DesktopLinks = styled(Box)(({ theme }) => ({
+    display: 'flex',
+    [theme.breakpoints.down('sm')]: {
+        display: 'none',
+    },
+}));
 
 const Header = () => {
-
+    const [drawerOpen, setDrawerOpen] = useState(false);
     const navigate = useNavigate();
 
-    const logout = async () => navigate('/account');
-        
+    const handleLogout = () => {
+        // Perform any logout logic here (e.g., clear session)
+        navigate('/account');
+    };
+
+    const toggleDrawer = () => setDrawerOpen(!drawerOpen);
+
     return (
-        <Component>
-            <Container>
-                <Link to='/'>HOME</Link>
-                <Link to='/about'>ABOUT</Link>
-                <Link to='/contact'>CONTACT</Link>
-                <Link to='/account'>LOGOUT</Link>
-            </Container>
+        <Component position="static">
+            <Toolbar>
+                <MenuButton onClick={toggleDrawer} aria-label="menu">
+                    <MenuIcon />
+                </MenuButton>
+                
+                <DesktopLinks>
+                    <NavLink to="/" end>HOME</NavLink>
+                    <NavLink to="/about">ABOUT</NavLink>
+                    <NavLink to="/contact">CONTACT</NavLink>
+                    <Typography onClick={handleLogout} style={{ cursor: 'pointer', padding: '20px' }}>
+                        LOGOUT
+                    </Typography>
+                </DesktopLinks>
+
+                <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
+                    <Box p={2} role="presentation" onClick={toggleDrawer}>
+                        <NavLink to="/" end>HOME</NavLink>
+                        <NavLink to="/about">ABOUT</NavLink>
+                        <NavLink to="/contact">CONTACT</NavLink>
+                        <Typography onClick={handleLogout} style={{ cursor: 'pointer', padding: '10px 0' }}>
+                            LOGOUT
+                        </Typography>
+                    </Box>
+                </Drawer>
+            </Toolbar>
         </Component>
-    )
-}
+    );
+};
 
 export default Header;
