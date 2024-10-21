@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box } from '@mui/material';
 import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import ReactDOM from 'react-dom';
 
 // Components
 import DataProvider from './context/DataProvider';
