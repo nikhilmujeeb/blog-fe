@@ -6,7 +6,7 @@ const API_URL = 'https://blog-be-3tvt.onrender.com';
 
 const axiosInstance = axios.create({
     baseURL: API_URL,
-    timeout: 10000,
+    timeout: 10000, // Timeout after 10 seconds
     headers: {
         "Content-Type": "application/json"
     }
@@ -15,15 +15,17 @@ const axiosInstance = axios.create({
 // Request interceptor
 axiosInstance.interceptors.request.use(
     function (config) {
-        // Handling query parameters and paths
-        if (config.TYPE.params) {
-            config.params = config.TYPE.params;
-        } else if (config.TYPE.query) {
-            config.url += '/' + config.TYPE.query;
+        if (config.TYPE) {
+            if (config.TYPE.params) {
+                config.params = config.TYPE.params;
+            } else if (config.TYPE.query) {
+                config.url += '/' + config.TYPE.query;
+            }
         }
         return config;
     },
     function (error) {
+        console.error("ERROR IN REQUEST INTERCEPTOR: ", error);
         return Promise.reject(error);
     }
 );
@@ -73,14 +75,14 @@ const processError = async (error) => {
             };
         }
     } else if (error.request) {
-        console.error("ERROR IN REQUEST: ", error.toJSON());
+        console.error("ERROR IN REQUEST: ", error.request); // Log error.request for more info
         return {
             isError: true,
             msg: API_NOTIFICATION_MESSAGES.requestFailure.message,
             code: ""
         };
     } else {
-        console.error("ERROR IN SETUP: ", error.toJSON());
+        console.error("ERROR IN SETUP: ", error.message); // Log error.message for setup errors
         return {
             isError: true,
             msg: API_NOTIFICATION_MESSAGES.networkError.message,

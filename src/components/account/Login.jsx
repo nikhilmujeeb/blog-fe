@@ -82,18 +82,18 @@ const Login = ({ isUserAuthenticated }) => {
     const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';
 
     useEffect(() => {
-        setError('');
-    }, [login, signup]);
+        setError(''); // Clear error on account switch
+    }, [account]);
 
     const onValueChange = (e) => {
         setLogin({ ...login, [e.target.name]: e.target.value });
         setError(''); // Clear error on input change
-    }
+    };
 
     const onInputChange = (e) => {
         setSignup({ ...signup, [e.target.name]: e.target.value });
         setError(''); // Clear error on input change
-    }
+    };
 
     const loginUser = async () => {
         if (!login.username || !login.password) {
@@ -105,7 +105,6 @@ const Login = ({ isUserAuthenticated }) => {
         try {
             const response = await API.userLogin(login);
             if (response.isSuccess) {
-                setError('');
                 sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
                 sessionStorage.setItem('refreshToken', `Bearer ${response.data.refreshToken}`);
                 setAccount({ name: response.data.name, username: response.data.username });
@@ -113,7 +112,7 @@ const Login = ({ isUserAuthenticated }) => {
                 setLogin(loginInitialValues);
                 navigate('/');
             } else {
-                setError(response.msg || 'Something went wrong! Please try again later');
+                setError(response.msg || 'Login failed! Please try again.');
             }
         } catch (error) {
             console.error("Login error:", error);
@@ -121,7 +120,7 @@ const Login = ({ isUserAuthenticated }) => {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const signupUser = async () => {
         if (!signup.name || !signup.username || !signup.password) {
@@ -133,11 +132,11 @@ const Login = ({ isUserAuthenticated }) => {
         try {
             const response = await API.userSignup(signup);
             if (response.isSuccess) {
-                setError('');
                 setSignup(signupInitialValues);
                 toggleAccount('login');
+                setError('Signup successful! Please log in.');
             } else {
-                setError(response.msg || 'Something went wrong! Please try again later');
+                setError(response.msg || 'Signup failed! Please try again.');
             }
         } catch (error) {
             console.error("Signup error:", error);
@@ -145,11 +144,11 @@ const Login = ({ isUserAuthenticated }) => {
         } finally {
             setLoading(false);
         }
-    }
+    };
 
     const toggleSignup = () => {
-        account === 'signup' ? toggleAccount('login') : toggleAccount('signup');
-    }
+        toggleAccount((prev) => (prev === 'signup' ? 'login' : 'signup'));
+    };
 
     return (
         <Component>
@@ -184,6 +183,6 @@ const Login = ({ isUserAuthenticated }) => {
             </Box>
         </Component>
     );
-}
+};
 
 export default Login;
