@@ -1,4 +1,4 @@
-
+import React from 'react';
 import { styled, Box, Typography } from '@mui/material';
 
 const Image = styled(Box)`

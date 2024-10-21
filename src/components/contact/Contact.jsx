@@ -1,3 +1,4 @@
+import React from 'react';
 import { Box, styled, Typography, Link } from '@mui/material';
 import { Instagram, Email, LinkedIn } from '@mui/icons-material'; // Import LinkedIn icon
 
