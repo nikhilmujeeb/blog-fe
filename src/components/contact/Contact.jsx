@@ -29,7 +29,7 @@ const Contact = () => {
                 <Text variant="h5">
                     Reach out to me on 
                     <Link 
-                        href="https://www.instagram.com/codeforinterview/" 
+                        href="https://www.instagram.com/nikhil_mujeeb/" 
                         color="inherit" 
                         target="_blank"
                     >
