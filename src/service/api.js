@@ -6,50 +6,117 @@ const API_URL = 'https://blog-be-3tvt.onrender.com';
 
 const axiosInstance = axios.create({
     baseURL: API_URL,
-    timeout: 10000,
-    headers: { "Content-Type": "application/json" },
+    timeout: 10000, // Timeout after 10 seconds
+    headers: {
+        "Content-Type": "application/json"
+    }
 });
 
+// Request interceptor
 axiosInstance.interceptors.request.use(
-    (config) => {
-        const { TYPE } = config;
-        if (TYPE) {
-            if (TYPE.params) config.params = TYPE.params;
-            else if (TYPE.query) config.url += `/${TYPE.query}`;
+    function (config) {
+        if (config.TYPE) {
+            if (config.TYPE.params) {
+                config.params = config.TYPE.params;
+            } else if (config.TYPE.query) {
+                config.url += '/' + config.TYPE.query;
+            }
         }
-        config.headers.authorization = getAccessToken();
         return config;
     },
-    (error) => Promise.reject(error)
+    function (error) {
+        console.error("ERROR IN REQUEST INTERCEPTOR: ", error);
+        return Promise.reject(error);
+    }
 );
 
+// Response interceptor
 axiosInstance.interceptors.response.use(
-    (response) => processResponse(response),
-    (error) => Promise.reject(processError(error))
+    function (response) {
+        return processResponse(response);
+    },
+    function (error) {
+        return Promise.reject(processError(error));
+    }
 );
 
-const processResponse = (response) => response.status === 200
-    ? { isSuccess: true, data: response.data }
-    : { isFailure: true, msg: response?.data?.msg || 'Failed!', code: response.status };
-
-const processError = (error) => {
-    const { response, request, message } = error;
-    if (response) return { isError: true, msg: response.data?.msg || 'Failed!', code: response.status };
-    if (request) return { isError: true, msg: 'Request failed!' };
-    return { isError: true, msg: message || 'Network error' };
+// Function to process API responses
+const processResponse = (response) => {
+    if (response?.status === 200) {
+        return { isSuccess: true, data: response.data };
+    } else {
+        return {
+            isFailure: true,
+            status: response?.status,
+            msg: response?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
+            code: response?.code || response?.status
+        };
+    }
 };
 
+// Function to process errors
+const processError = async (error) => {
+    if (error.response) {
+        const { status } = error.response;
+
+        if (status === 403) {
+            sessionStorage.clear();
+            return {
+                isError: true,
+                msg: 'Session expired. Please log in again.',
+                code: status
+            };
+        } else {
+            console.error("ERROR IN RESPONSE: ", error.toJSON());
+            return {
+                isError: true,
+                msg: error.response.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
+                code: status
+            };
+        }
+    } else if (error.request) {
+        console.error("ERROR IN REQUEST: ", error.request); // Log error.request for more info
+        return {
+            isError: true,
+            msg: API_NOTIFICATION_MESSAGES.requestFailure.message,
+            code: ""
+        };
+    } else {
+        console.error("ERROR IN SETUP: ", error.message); // Log error.message for setup errors
+        return {
+            isError: true,
+            msg: API_NOTIFICATION_MESSAGES.networkError.message,
+            code: ""
+        };
+    }
+};
+
+// Creating the API object for each service URL
 const API = {};
-Object.entries(SERVICE_URLS).forEach(([key, value]) => {
-    API[key] = (body, uploadProgress, downloadProgress) =>
+for (const [key, value] of Object.entries(SERVICE_URLS)) {
+    API[key] = (body, showUploadProgress, showDownloadProgress) =>
         axiosInstance({
             method: value.method,
             url: value.url,
             data: value.method === 'DELETE' ? undefined : body,
+            responseType: value.responseType,
+            headers: {
+                authorization: getAccessToken(),
+            },
             TYPE: getType(value, body),
-            onUploadProgress: (e) => uploadProgress?.(Math.round((e.loaded * 100) / e.total)),
-            onDownloadProgress: (e) => downloadProgress?.(Math.round((e.loaded * 100) / e.total)),
+            onUploadProgress: function (progressEvent) {
+                if (showUploadProgress) {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    showUploadProgress(percentCompleted);
+                }
+            },
+            onDownloadProgress: function (progressEvent) {
+                if (showDownloadProgress) {
+                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    showDownloadProgress(percentCompleted);
+                }
+            }
         });
-});
+}
 
 export { API };
