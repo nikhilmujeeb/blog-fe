@@ -2,21 +2,24 @@ import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 import { getAccessToken, getType } from '../utils/common-utils';
 
-const API_URL = 'https://blog-be-3tvt.onrender.com';
+const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.com';
 
 // Create an axios instance with base configuration
 const axiosInstance = axios.create({
     baseURL: API_URL,
-    timeout: 10000, // Timeout after 10 seconds
+    timeout: 10000,
     headers: {
-        "Content-Type": "application/json",
+        'Content-Type': 'application/json',
     },
 });
 
-// Request interceptor
+// Interceptors
 axiosInstance.interceptors.request.use(
-    function (config) {
-        // Handle custom TYPE-based query or params
+    (config) => {
+        const token = getAccessToken();
+        if (token) config.headers.authorization = token;
+        
+        // Handle TYPE-based configurations
         if (config.TYPE) {
             if (config.TYPE.params) {
                 config.params = config.TYPE.params;
@@ -24,79 +27,57 @@ axiosInstance.interceptors.request.use(
                 config.url += `/${config.TYPE.query}`;
             }
         }
-        // Attach authorization token if available
-        config.headers.authorization = getAccessToken();
+
         return config;
     },
-    function (error) {
-        console.error("ERROR IN REQUEST INTERCEPTOR: ", error);
+    (error) => {
+        console.error('Request Error:', error);
         return Promise.reject(error);
     }
 );
 
-// Response interceptor
 axiosInstance.interceptors.response.use(
-    function (response) {
+    (response) => {
+        console.log('API Response:', response);
         return processResponse(response);
     },
-    async function (error) {
+    async (error) => {
+        console.error('Response Error:', error.toJSON());
         return Promise.reject(await processError(error));
     }
 );
 
-// Function to process API responses
+// Response Processing
 const processResponse = (response) => {
     if (response?.status === 200) {
         return { isSuccess: true, data: response.data };
-    } else {
-        return {
-            isFailure: true,
-            status: response?.status,
-            msg: response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
-            code: response?.status,
-        };
     }
+    return {
+        isFailure: true,
+        status: response?.status,
+        msg: response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
+        code: response?.status,
+    };
 };
 
-// Function to process errors with detailed logging
 const processError = async (error) => {
     if (error.response) {
-        const { status } = error.response;
-
-        // Handle session expiration (403)
+        const { status, data } = error.response;
         if (status === 403) {
             sessionStorage.clear();
-            return {
-                isError: true,
-                msg: 'Session expired. Please log in again.',
-                code: status,
-            };
-        } else {
-            console.error("ERROR IN RESPONSE: ", error.toJSON());
-            return {
-                isError: true,
-                msg: error.response.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
-                code: status,
-            };
+            return { isError: true, msg: 'Session expired. Please log in again.', code: status };
         }
+        console.error('ERROR RESPONSE DATA:', data);
+        return { isError: true, msg: data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message, code: status };
     } else if (error.request) {
-        console.error("ERROR IN REQUEST: ", error.request); // Log request error
-        return {
-            isError: true,
-            msg: API_NOTIFICATION_MESSAGES.requestFailure.message,
-            code: "",
-        };
-    } else {
-        console.error("ERROR IN SETUP: ", error.message); // Log setup error
-        return {
-            isError: true,
-            msg: API_NOTIFICATION_MESSAGES.networkError.message,
-            code: "",
-        };
+        console.error('ERROR IN REQUEST:', error.request);
+        return { isError: true, msg: API_NOTIFICATION_MESSAGES.requestFailure.message, code: '' };
     }
+    console.error('ERROR IN SETUP:', error.message);
+    return { isError: true, msg: API_NOTIFICATION_MESSAGES.networkError.message, code: '' };
 };
 
-// Create API object with service methods
+// Dynamic API Methods
 const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, showUploadProgress, showDownloadProgress) =>
@@ -106,15 +87,13 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
             data: value.method === 'DELETE' ? undefined : body,
             responseType: value.responseType,
             TYPE: getType(value, body),
-            // Track upload progress
-            onUploadProgress: function (progressEvent) {
+            onUploadProgress: (progressEvent) => {
                 if (showUploadProgress) {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     showUploadProgress(percentCompleted);
                 }
             },
-            // Track download progress
-            onDownloadProgress: function (progressEvent) {
+            onDownloadProgress: (progressEvent) => {
                 if (showDownloadProgress) {
                     const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
                     showDownloadProgress(percentCompleted);
@@ -122,5 +101,16 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
             },
         });
 }
+
+// Specific API methods
+export const userLogin = async (data) => {
+    console.log('Login Request Data:', data);
+    return API.login(data);
+};
+
+export const userSignup = async (data) => {
+    console.log('Signup Request Data:', data);
+    return API.signup(data);
+};
 
 export { API };

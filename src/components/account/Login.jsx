@@ -3,6 +3,7 @@ import { TextField, Box, Button, Typography, styled, CircularProgress } from '@m
 import { useNavigate } from 'react-router-dom';
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
+import PropTypes from 'prop-types';
 
 const Component = styled(Box)`
     width: 400px;
@@ -50,10 +51,10 @@ const Error = styled(Typography)`
     font-weight: 600;
 `;
 
-const loginInitialValues = { username: '', password: '' };
-const signupInitialValues = { name: '', username: '', password: '' };
+const Login = ({ setIsUserAuthenticated }) => { 
+    const loginInitialValues = { username: '', password: '' };
+    const signupInitialValues = { name: '', username: '', password: '' };
 
-const Login = ({ isUserAuthenticated }) => {
     const [login, setLogin] = useState(loginInitialValues);
     const [signup, setSignup] = useState(signupInitialValues);
     const [error, setError] = useState('');
@@ -62,7 +63,6 @@ const Login = ({ isUserAuthenticated }) => {
 
     const navigate = useNavigate();
     const { setAccount } = useContext(DataContext);
-
     const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';
 
     useEffect(() => {
@@ -71,7 +71,8 @@ const Login = ({ isUserAuthenticated }) => {
 
     const handleInputChange = (e, isSignup = false) => {
         const { name, value } = e.target;
-        isSignup ? setSignup({ ...signup, [name]: value }) : setLogin({ ...login, [name]: value });
+        const setter = isSignup ? setSignup : setLogin;
+        setter((prev) => ({ ...prev, [name]: value }));
     };
 
     const loginUser = async () => {
@@ -85,13 +86,14 @@ const Login = ({ isUserAuthenticated }) => {
             if (response.isSuccess) {
                 sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
                 setAccount({ name: response.data.name, username: response.data.username });
-                isUserAuthenticated(true);
+                setIsUserAuthenticated(true);
                 navigate('/');
             } else {
-                setError(response.msg || 'Login failed!');
+                setError(response.msg || 'Invalid username or password');
             }
         } catch (error) {
-            setError('An unexpected error occurred.');
+            console.error('Login error:', error);
+            setError(error.response?.data?.msg || 'Login failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -107,13 +109,14 @@ const Login = ({ isUserAuthenticated }) => {
             const response = await API.userSignup(signup);
             if (response.isSuccess) {
                 toggleAccount('login');
-                setSignup(signupInitialValues); // Reset the signup form
+                setSignup(signupInitialValues);
                 setError('Signup successful! Please log in.');
             } else {
                 setError(response.msg || 'Signup failed!');
             }
         } catch (error) {
-            setError('An unexpected error occurred.');
+            console.error('Signup error:', error);
+            setError(error.response?.data?.msg || 'Signup failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -181,6 +184,10 @@ const Login = ({ isUserAuthenticated }) => {
             </Box>
         </Component>
     );
+};
+
+Login.propTypes = {
+    setIsUserAuthenticated: PropTypes.func.isRequired,  // Updated prop type
 };
 
 export default Login;
