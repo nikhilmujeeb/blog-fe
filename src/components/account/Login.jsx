@@ -69,8 +69,10 @@ const Login = ({ isUserAuthenticated }) => {
         setError('');
     }, [account]);
 
-    const onValueChange = (e) => setLogin({ ...login, [e.target.name]: e.target.value });
-    const onInputChange = (e) => setSignup({ ...signup, [e.target.name]: e.target.value });
+    const handleInputChange = (e, isSignup = false) => {
+        const { name, value } = e.target;
+        isSignup ? setSignup({ ...signup, [name]: value }) : setLogin({ ...login, [name]: value });
+    };
 
     const loginUser = async () => {
         if (!login.username || !login.password) {
@@ -122,8 +124,8 @@ const Login = ({ isUserAuthenticated }) => {
                 <Image src={imageURL} alt="blog" />
                 {account === 'login' ? (
                     <Wrapper>
-                        <TextField name='username' label='Enter Username' onChange={onValueChange} />
-                        <TextField name='password' label='Enter Password' type="password" onChange={onValueChange} />
+                        <TextField name='username' label='Enter Username' onChange={(e) => handleInputChange(e)} />
+                        <TextField name='password' label='Enter Password' type="password" onChange={(e) => handleInputChange(e)} />
                         {error && <Error>{error}</Error>}
                         <LoginButton onClick={loginUser} disabled={loading}>
                             {loading ? <CircularProgress size={24} /> : 'Login'}
@@ -133,9 +135,9 @@ const Login = ({ isUserAuthenticated }) => {
                     </Wrapper>
                 ) : (
                     <Wrapper>
-                        <TextField name='name' label='Enter Name' onChange={onInputChange} />
-                        <TextField name='username' label='Enter Username' onChange={onInputChange} />
-                        <TextField name='password' label='Enter Password' type="password" onChange={onInputChange} />
+                        <TextField name='name' label='Enter Name' onChange={(e) => handleInputChange(e, true)} />
+                        <TextField name='username' label='Enter Username' onChange={(e) => handleInputChange(e, true)} />
+                        <TextField name='password' label='Enter Password' type="password" onChange={(e) => handleInputChange(e, true)} />
                         {error && <Error>{error}</Error>}
                         <SignupButton onClick={signupUser} disabled={loading}>
                             {loading ? <CircularProgress size={24} /> : 'Signup'}
