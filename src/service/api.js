@@ -4,94 +4,73 @@ import { getAccessToken, getType } from '../utils/common-utils';
 
 const API_URL = 'https://blog-be-3tvt.onrender.com';
 
+// Axios instance with a 10-second timeout and default headers
 const axiosInstance = axios.create({
     baseURL: API_URL,
-    timeout: 10000, // Timeout after 10 seconds
-    headers: {
-        "Content-Type": "application/json"
-    }
+    timeout: 10000,
+    headers: { "Content-Type": "application/json" },
 });
 
-// Request interceptor
+// Request interceptor for dynamic params and query handling
 axiosInstance.interceptors.request.use(
-    function (config) {
-        if (config.TYPE) {
-            if (config.TYPE.params) {
-                config.params = config.TYPE.params;
-            } else if (config.TYPE.query) {
-                config.url += '/' + config.TYPE.query;
+    (config) => {
+        const { TYPE } = config;
+        if (TYPE) {
+            if (TYPE.params) {
+                config.params = TYPE.params;
+            } else if (TYPE.query) {
+                config.url += `/${TYPE.query}`;
             }
         }
+        config.headers.authorization = getAccessToken(); // Attach token to headers
         return config;
     },
-    function (error) {
-        console.error("ERROR IN REQUEST INTERCEPTOR: ", error);
+    (error) => {
+        console.error("REQUEST ERROR:", error);
         return Promise.reject(error);
     }
 );
 
-// Response interceptor
+// Response interceptor for consistent response and error handling
 axiosInstance.interceptors.response.use(
-    function (response) {
-        return processResponse(response);
-    },
-    function (error) {
-        return Promise.reject(processError(error));
-    }
+    (response) => processResponse(response),
+    (error) => Promise.reject(processError(error))
 );
 
-// Function to process API responses
+// Helper function to process successful responses
 const processResponse = (response) => {
-    if (response?.status === 200) {
-        return { isSuccess: true, data: response.data };
-    } else {
-        return {
+    return response?.status === 200
+        ? { isSuccess: true, data: response.data }
+        : {
             isFailure: true,
             status: response?.status,
-            msg: response?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
-            code: response?.code || response?.status
+            msg: response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
+            code: response?.status,
         };
-    }
 };
 
-// Function to process errors
-const processError = async (error) => {
-    if (error.response) {
-        const { status } = error.response;
+// Helper function to process API errors
+const processError = (error) => {
+    const { response, request, message } = error;
 
+    if (response) {
+        const { status } = response;
         if (status === 403) {
             sessionStorage.clear();
-            return {
-                isError: true,
-                msg: 'Session expired. Please log in again.',
-                code: status
-            };
-        } else {
-            console.error("ERROR IN RESPONSE: ", error.toJSON());
-            return {
-                isError: true,
-                msg: error.response.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message,
-                code: status
-            };
-        }
-    } else if (error.request) {
-        console.error("ERROR IN REQUEST: ", error.request); // Log error.request for more info
-        return {
-            isError: true,
-            msg: API_NOTIFICATION_MESSAGES.requestFailure.message,
-            code: ""
-        };
+            return { isError: true, msg: 'Session expired. Please log in again.', code: status };
+        } 
+        console.error("RESPONSE ERROR:", error.toJSON());
+        return { isError: true, msg: response.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message, code: status };
+    } else if (request) {
+        console.error("REQUEST ERROR:", request);
+        return { isError: true, msg: API_NOTIFICATION_MESSAGES.requestFailure.message };
     } else {
-        console.error("ERROR IN SETUP: ", error.message); // Log error.message for setup errors
-        return {
-            isError: true,
-            msg: API_NOTIFICATION_MESSAGES.networkError.message,
-            code: ""
-        };
+        console.error("SETUP ERROR:", message);
+        return { isError: true, msg: API_NOTIFICATION_MESSAGES.networkError.message };
     }
 };
 
-// Creating the API object for each service URL
+// API service object to create API calls dynamically from SERVICE_URLS
 const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, showUploadProgress, showDownloadProgress) =>
@@ -100,22 +79,19 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
             url: value.url,
             data: value.method === 'DELETE' ? undefined : body,
             responseType: value.responseType,
-            headers: {
-                authorization: getAccessToken(),
-            },
             TYPE: getType(value, body),
-            onUploadProgress: function (progressEvent) {
+            onUploadProgress: (event) => {
                 if (showUploadProgress) {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    const percentCompleted = Math.round((event.loaded * 100) / event.total);
                     showUploadProgress(percentCompleted);
                 }
             },
-            onDownloadProgress: function (progressEvent) {
+            onDownloadProgress: (event) => {
                 if (showDownloadProgress) {
-                    const percentCompleted = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+                    const percentCompleted = Math.round((event.loaded * 100) / event.total);
                     showDownloadProgress(percentCompleted);
                 }
-            }
+            },
         });
 }
 
