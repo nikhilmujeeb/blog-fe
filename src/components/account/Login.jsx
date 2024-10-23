@@ -107,6 +107,7 @@ const Login = ({ isUserAuthenticated }) => {
             const response = await API.userSignup(signup);
             if (response.isSuccess) {
                 toggleAccount('login');
+                setSignup(signupInitialValues); // Reset the signup form
                 setError('Signup successful! Please log in.');
             } else {
                 setError(response.msg || 'Signup failed!');
@@ -124,26 +125,57 @@ const Login = ({ isUserAuthenticated }) => {
                 <Image src={imageURL} alt="blog" />
                 {account === 'login' ? (
                     <Wrapper>
-                        <TextField name='username' label='Enter Username' onChange={(e) => handleInputChange(e)} />
-                        <TextField name='password' label='Enter Password' type="password" onChange={(e) => handleInputChange(e)} />
+                        <TextField 
+                            name='username' 
+                            label='Enter Username' 
+                            onChange={(e) => handleInputChange(e)} 
+                            disabled={loading}
+                        />
+                        <TextField 
+                            name='password' 
+                            label='Enter Password' 
+                            type="password" 
+                            onChange={(e) => handleInputChange(e)} 
+                            disabled={loading}
+                        />
                         {error && <Error>{error}</Error>}
                         <LoginButton onClick={loginUser} disabled={loading}>
                             {loading ? <CircularProgress size={24} /> : 'Login'}
                         </LoginButton>
                         <Typography align="center">OR</Typography>
-                        <SignupButton onClick={() => toggleAccount('signup')}>Create an account</SignupButton>
+                        <SignupButton onClick={() => toggleAccount('signup')} disabled={loading}>
+                            Create an account
+                        </SignupButton>
                     </Wrapper>
                 ) : (
                     <Wrapper>
-                        <TextField name='name' label='Enter Name' onChange={(e) => handleInputChange(e, true)} />
-                        <TextField name='username' label='Enter Username' onChange={(e) => handleInputChange(e, true)} />
-                        <TextField name='password' label='Enter Password' type="password" onChange={(e) => handleInputChange(e, true)} />
+                        <TextField 
+                            name='name' 
+                            label='Enter Name' 
+                            onChange={(e) => handleInputChange(e, true)} 
+                            disabled={loading}
+                        />
+                        <TextField 
+                            name='username' 
+                            label='Enter Username' 
+                            onChange={(e) => handleInputChange(e, true)} 
+                            disabled={loading}
+                        />
+                        <TextField 
+                            name='password' 
+                            label='Enter Password' 
+                            type="password" 
+                            onChange={(e) => handleInputChange(e, true)} 
+                            disabled={loading}
+                        />
                         {error && <Error>{error}</Error>}
                         <SignupButton onClick={signupUser} disabled={loading}>
                             {loading ? <CircularProgress size={24} /> : 'Signup'}
                         </SignupButton>
                         <Typography align="center">OR</Typography>
-                        <LoginButton onClick={() => toggleAccount('login')}>Already have an account</LoginButton>
+                        <LoginButton onClick={() => toggleAccount('login')} disabled={loading}>
+                            Already have an account
+                        </LoginButton>
                     </Wrapper>
                 )}
             </Box>
