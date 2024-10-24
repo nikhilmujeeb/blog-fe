@@ -36,6 +36,13 @@ axiosInstance.interceptors.request.use(
     }
 );
 
+axios.post('https://blog-be-3tvt.onrender.com/api/login', {
+    email: 'test@example.com',
+    password: 'password123',
+  })
+  .then(response => console.log('Login Successful:', response))
+  .catch(error => console.error('Login Error:', error));  
+
 axiosInstance.interceptors.response.use(
     (response) => {
         console.log('API Response:', response);
