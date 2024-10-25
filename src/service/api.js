@@ -1,3 +1,4 @@
+// src/service/api.js
 import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 import { getAccessToken, getType } from '../utils/common-utils';
@@ -7,7 +8,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.
 // Create an axios instance with base configuration
 const axiosInstance = axios.create({
     baseURL: API_URL,
-    timeout: 10000,
+    timeout: 30000, // Set the timeout to 30 seconds
     headers: {
         'Content-Type': 'application/json',
     },
@@ -85,7 +86,7 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
                     showDownloadProgress(percentCompleted);
                 }
             },
-        });
+        }).then(processResponse).catch(processError); // Handle response and errors
 }
 
 // Specific API methods

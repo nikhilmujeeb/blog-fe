@@ -1,5 +1,5 @@
 // src/components/account/Login.jsx
-import React, { useState, useEffect, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { TextField, Box, Button, Typography, styled, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { API } from '../../service/api';
