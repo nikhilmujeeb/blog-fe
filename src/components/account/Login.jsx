@@ -187,7 +187,7 @@ const Login = ({ setIsUserAuthenticated }) => {
 };
 
 Login.propTypes = {
-    setIsUserAuthenticated: PropTypes.func.isRequired,  // Updated prop type
+    setIsUserAuthenticated: PropTypes.func.isRequired,
 };
 
 export default Login;
