@@ -51,7 +51,7 @@ const Error = styled(Typography)`
     font-weight: 600;
 `;
 
-const Login = ({ setIsUserAuthenticated }) => { 
+const Login = ({ setIsUserAuthenticated }) => {
     const loginInitialValues = { username: '', password: '' };
     const signupInitialValues = { name: '', username: '', password: '' };
 
@@ -93,7 +93,7 @@ const Login = ({ setIsUserAuthenticated }) => {
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.msg || 'Login failed. Please try again.');
+            setError(error.response?.data?.msg || 'Login failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -116,7 +116,7 @@ const Login = ({ setIsUserAuthenticated }) => {
             }
         } catch (error) {
             console.error('Signup error:', error);
-            setError(error.msg || 'Signup failed. Please try again.');
+            setError(error.response?.data?.msg || 'Signup failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -172,13 +172,13 @@ const Login = ({ setIsUserAuthenticated }) => {
                             disabled={loading}
                         />
                         {error && <Error>{error}</Error>}
-                        <SignupButton onClick={signupUser} disabled={loading}>
+                        <LoginButton onClick={signupUser} disabled={loading}>
                             {loading ? <CircularProgress size={24} /> : 'Sign Up'}
-                        </SignupButton>
-                        <Typography align="center">OR</Typography>
-                        <LoginButton onClick={() => toggleAccount('login')} disabled={loading}>
-                            Already have an account
                         </LoginButton>
+                        <Typography align="center">OR</Typography>
+                        <SignupButton onClick={() => toggleAccount('login')} disabled={loading}>
+                            Already have an account? Login
+                        </SignupButton>
                     </Wrapper>
                 )}
             </Box>

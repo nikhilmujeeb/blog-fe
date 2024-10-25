@@ -8,14 +8,16 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.
 const axiosInstance = axios.create({
     baseURL: API_URL,
     timeout: 10000,
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+        'Content-Type': 'application/json',
+    },
 });
 
 // Interceptors
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = getAccessToken();
-        if (token) config.headers.authorization = `Bearer ${token}`;
+        if (token) config.headers.Authorization = `Bearer ${token}`; // Ensure token is prefixed with "Bearer"
         
         // Handle TYPE-based configurations
         if (config.TYPE) {
@@ -26,23 +28,11 @@ axiosInstance.interceptors.request.use(
             }
         }
 
-        console.log('Request Config:', config); // Debugging request config
         return config;
     },
     (error) => {
         console.error('Request Error:', error);
         return Promise.reject(error);
-    }
-);
-
-axiosInstance.interceptors.response.use(
-    (response) => {
-        console.log('API Response:', response);
-        return processResponse(response);
-    },
-    async (error) => {
-        console.error('Response Error:', error.toJSON());
-        return Promise.reject(await processError(error));
     }
 );
 
@@ -66,13 +56,10 @@ const processError = async (error) => {
             sessionStorage.clear();
             return { isError: true, msg: 'Session expired. Please log in again.', code: status };
         }
-        console.error('Error Response Data:', data);
         return { isError: true, msg: data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message, code: status };
     } else if (error.request) {
-        console.error('Error in Request:', error.request);
         return { isError: true, msg: API_NOTIFICATION_MESSAGES.requestFailure.message, code: '' };
     }
-    console.error('Setup Error:', error.message);
     return { isError: true, msg: API_NOTIFICATION_MESSAGES.networkError.message, code: '' };
 };
 
