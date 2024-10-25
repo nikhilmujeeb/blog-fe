@@ -8,16 +8,14 @@ const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.
 const axiosInstance = axios.create({
     baseURL: API_URL,
     timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
+    headers: { 'Content-Type': 'application/json' },
 });
 
 // Interceptors
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = getAccessToken();
-        if (token) config.headers.authorization = token;
+        if (token) config.headers.authorization = `Bearer ${token}`;
         
         // Handle TYPE-based configurations
         if (config.TYPE) {
@@ -28,6 +26,7 @@ axiosInstance.interceptors.request.use(
             }
         }
 
+        console.log('Request Config:', config); // Debugging request config
         return config;
     },
     (error) => {
@@ -35,13 +34,6 @@ axiosInstance.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
-axios.post('https://blog-be-3tvt.onrender.com/api/login', {
-    email: 'test@example.com',
-    password: 'password123',
-  })
-  .then(response => console.log('Login Successful:', response))
-  .catch(error => console.error('Login Error:', error));  
 
 axiosInstance.interceptors.response.use(
     (response) => {
@@ -74,13 +66,13 @@ const processError = async (error) => {
             sessionStorage.clear();
             return { isError: true, msg: 'Session expired. Please log in again.', code: status };
         }
-        console.error('ERROR RESPONSE DATA:', data);
+        console.error('Error Response Data:', data);
         return { isError: true, msg: data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message, code: status };
     } else if (error.request) {
-        console.error('ERROR IN REQUEST:', error.request);
+        console.error('Error in Request:', error.request);
         return { isError: true, msg: API_NOTIFICATION_MESSAGES.requestFailure.message, code: '' };
     }
-    console.error('ERROR IN SETUP:', error.message);
+    console.error('Setup Error:', error.message);
     return { isError: true, msg: API_NOTIFICATION_MESSAGES.networkError.message, code: '' };
 };
 

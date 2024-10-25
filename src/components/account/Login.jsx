@@ -93,7 +93,7 @@ const Login = ({ setIsUserAuthenticated }) => {
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.response?.data?.msg || 'Login failed. Please try again.');
+            setError(error.msg || 'Login failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -116,7 +116,7 @@ const Login = ({ setIsUserAuthenticated }) => {
             }
         } catch (error) {
             console.error('Signup error:', error);
-            setError(error.response?.data?.msg || 'Signup failed. Please try again.');
+            setError(error.msg || 'Signup failed. Please try again.');
         } finally {
             setLoading(false);
         }
@@ -173,7 +173,7 @@ const Login = ({ setIsUserAuthenticated }) => {
                         />
                         {error && <Error>{error}</Error>}
                         <SignupButton onClick={signupUser} disabled={loading}>
-                            {loading ? <CircularProgress size={24} /> : 'Signup'}
+                            {loading ? <CircularProgress size={24} /> : 'Sign Up'}
                         </SignupButton>
                         <Typography align="center">OR</Typography>
                         <LoginButton onClick={() => toggleAccount('login')} disabled={loading}>
