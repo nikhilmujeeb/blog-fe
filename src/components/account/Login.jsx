@@ -1,3 +1,4 @@
+// src/components/account/Login.jsx
 import React, { useState, useEffect, useContext } from 'react';
 import { TextField, Box, Button, Typography, styled, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
@@ -52,27 +53,38 @@ const Error = styled(Typography)`
 `;
 
 const Login = ({ setIsUserAuthenticated }) => {
-    const loginInitialValues = { username: '', password: '' };
-    const signupInitialValues = { name: '', username: '', password: '' };
-
-    const [login, setLogin] = useState(loginInitialValues);
-    const [signup, setSignup] = useState(signupInitialValues);
-    const [error, setError] = useState('');
-    const [loading, setLoading] = useState(false);
-    const [account, toggleAccount] = useState('login');
-
+    const [account, toggleAccount] = useState('login'); // login or signup
     const navigate = useNavigate();
     const { setAccount } = useContext(DataContext);
     const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';
 
-    useEffect(() => {
-        setError('');
-    }, [account]);
+    return (
+        <Component>
+            <Box>
+                <Image src={imageURL} alt="blog" />
+                {account === 'login' ? (
+                    <LoginForm
+                        toggleAccount={toggleAccount}
+                        setIsUserAuthenticated={setIsUserAuthenticated}
+                        setAccount={setAccount}
+                        navigate={navigate}
+                    />
+                ) : (
+                    <SignupForm toggleAccount={toggleAccount} />
+                )}
+            </Box>
+        </Component>
+    );
+};
 
-    const handleInputChange = (e, isSignup = false) => {
+const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate }) => {
+    const [login, setLogin] = useState({ username: '', password: '' });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleInputChange = (e) => {
         const { name, value } = e.target;
-        const setter = isSignup ? setSignup : setLogin;
-        setter((prev) => ({ ...prev, [name]: value }));
+        setLogin((prev) => ({ ...prev, [name]: value }));
     };
 
     const loginUser = async () => {
@@ -99,6 +111,43 @@ const Login = ({ setIsUserAuthenticated }) => {
         }
     };
 
+    return (
+        <Wrapper>
+            <TextField
+                name="username"
+                label="Enter Username"
+                onChange={handleInputChange}
+                disabled={loading}
+            />
+            <TextField
+                name="password"
+                label="Enter Password"
+                type="password"
+                onChange={handleInputChange}
+                disabled={loading}
+            />
+            {error && <Error>{error}</Error>}
+            <LoginButton onClick={loginUser} disabled={loading}>
+                {loading ? <CircularProgress size={24} /> : 'Login'}
+            </LoginButton>
+            <Typography align="center">OR</Typography>
+            <SignupButton onClick={() => toggleAccount('signup')} disabled={loading}>
+                Create an account
+            </SignupButton>
+        </Wrapper>
+    );
+};
+
+const SignupForm = ({ toggleAccount }) => {
+    const [signup, setSignup] = useState({ name: '', username: '', password: '' });
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setSignup((prev) => ({ ...prev, [name]: value }));
+    };
+
     const signupUser = async () => {
         if (!signup.name || !signup.username || !signup.password) {
             setError('All fields are required');
@@ -109,7 +158,7 @@ const Login = ({ setIsUserAuthenticated }) => {
             const response = await API.userSignup(signup);
             if (response.isSuccess) {
                 toggleAccount('login');
-                setSignup(signupInitialValues);
+                setSignup({ name: '', username: '', password: '' });
                 setError('Signup successful! Please log in.');
             } else {
                 setError(response.msg || 'Signup failed!');
@@ -123,66 +172,35 @@ const Login = ({ setIsUserAuthenticated }) => {
     };
 
     return (
-        <Component>
-            <Box>
-                <Image src={imageURL} alt="blog" />
-                {account === 'login' ? (
-                    <Wrapper>
-                        <TextField 
-                            name='username' 
-                            label='Enter Username' 
-                            onChange={(e) => handleInputChange(e)} 
-                            disabled={loading}
-                        />
-                        <TextField 
-                            name='password' 
-                            label='Enter Password' 
-                            type="password" 
-                            onChange={(e) => handleInputChange(e)} 
-                            disabled={loading}
-                        />
-                        {error && <Error>{error}</Error>}
-                        <LoginButton onClick={loginUser} disabled={loading}>
-                            {loading ? <CircularProgress size={24} /> : 'Login'}
-                        </LoginButton>
-                        <Typography align="center">OR</Typography>
-                        <SignupButton onClick={() => toggleAccount('signup')} disabled={loading}>
-                            Create an account
-                        </SignupButton>
-                    </Wrapper>
-                ) : (
-                    <Wrapper>
-                        <TextField 
-                            name='name' 
-                            label='Enter Name' 
-                            onChange={(e) => handleInputChange(e, true)} 
-                            disabled={loading}
-                        />
-                        <TextField 
-                            name='username' 
-                            label='Enter Username' 
-                            onChange={(e) => handleInputChange(e, true)} 
-                            disabled={loading}
-                        />
-                        <TextField 
-                            name='password' 
-                            label='Enter Password' 
-                            type="password" 
-                            onChange={(e) => handleInputChange(e, true)} 
-                            disabled={loading}
-                        />
-                        {error && <Error>{error}</Error>}
-                        <LoginButton onClick={signupUser} disabled={loading}>
-                            {loading ? <CircularProgress size={24} /> : 'Sign Up'}
-                        </LoginButton>
-                        <Typography align="center">OR</Typography>
-                        <SignupButton onClick={() => toggleAccount('login')} disabled={loading}>
-                            Already have an account? Login
-                        </SignupButton>
-                    </Wrapper>
-                )}
-            </Box>
-        </Component>
+        <Wrapper>
+            <TextField
+                name="name"
+                label="Enter Name"
+                onChange={handleInputChange}
+                disabled={loading}
+            />
+            <TextField
+                name="username"
+                label="Enter Username"
+                onChange={handleInputChange}
+                disabled={loading}
+            />
+            <TextField
+                name="password"
+                label="Enter Password"
+                type="password"
+                onChange={handleInputChange}
+                disabled={loading}
+            />
+            {error && <Error>{error}</Error>}
+            <LoginButton onClick={signupUser} disabled={loading}>
+                {loading ? <CircularProgress size={24} /> : 'Sign Up'}
+            </LoginButton>
+            <Typography align="center">OR</Typography>
+            <SignupButton onClick={() => toggleAccount('login')} disabled={loading}>
+                Already have an account? Login
+            </SignupButton>
+        </Wrapper>
     );
 };
 
