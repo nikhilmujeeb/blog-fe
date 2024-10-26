@@ -1,10 +1,10 @@
-// src/components/account/Login.jsx
 import React, { useState, useContext } from 'react';
 import { TextField, Box, Button, Typography, styled, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
 import PropTypes from 'prop-types';
+import { API_NOTIFICATION_MESSAGES } from '../../constants/config'; // Import API notification messages
 
 const Component = styled(Box)`
     width: 400px;
@@ -88,8 +88,9 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
     };
 
     const loginUser = async () => {
+        // Validate input fields
         if (!login.username || !login.password) {
-            setError('Please enter both username and password');
+            setError(API_NOTIFICATION_MESSAGES.validation.emptyFields.message);
             return;
         }
         setLoading(true);
@@ -101,11 +102,11 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
                 setIsUserAuthenticated(true);
                 navigate('/');
             } else {
-                setError(response.msg || 'Invalid username or password');
+                setError(response.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.response?.data?.msg || 'Login failed. Please try again.');
+            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
         } finally {
             setLoading(false);
         }
@@ -149,8 +150,9 @@ const SignupForm = ({ toggleAccount }) => {
     };
 
     const signupUser = async () => {
+        // Validate input fields
         if (!signup.name || !signup.username || !signup.password) {
-            setError('All fields are required');
+            setError(API_NOTIFICATION_MESSAGES.validation.emptyFields.message);
             return;
         }
         setLoading(true);
@@ -159,13 +161,13 @@ const SignupForm = ({ toggleAccount }) => {
             if (response.isSuccess) {
                 toggleAccount('login');
                 setSignup({ name: '', username: '', password: '' });
-                setError('Signup successful! Please log in.');
+                setError(API_NOTIFICATION_MESSAGES.success.signup.message);
             } else {
-                setError(response.msg || 'Signup failed!');
+                setError(response.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
             }
         } catch (error) {
             console.error('Signup error:', error);
-            setError(error.response?.data?.msg || 'Signup failed. Please try again.');
+            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
         } finally {
             setLoading(false);
         }
