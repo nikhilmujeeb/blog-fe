@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
 import PropTypes from 'prop-types';
-import { API_NOTIFICATION_MESSAGES } from '../../constants/config'; // Import API notification messages
+import { API_NOTIFICATION_MESSAGES } from '../../constants/config'; // Notification Messages
 
+// Styled Components
 const Component = styled(Box)`
     width: 400px;
     margin: auto;
@@ -52,8 +53,9 @@ const Error = styled(Typography)`
     font-weight: 600;
 `;
 
+// Login Component
 const Login = ({ setIsUserAuthenticated }) => {
-    const [account, toggleAccount] = useState('login'); // login or signup
+    const [account, toggleAccount] = useState('login');
     const navigate = useNavigate();
     const { setAccount } = useContext(DataContext);
     const imageURL = 'https://www.sesta.it/wp-content/uploads/2021/03/logo-blog-sesta-trasparente.png';
@@ -77,6 +79,7 @@ const Login = ({ setIsUserAuthenticated }) => {
     );
 };
 
+// Login Form Component
 const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate }) => {
     const [login, setLogin] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
@@ -88,9 +91,8 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
     };
 
     const loginUser = async () => {
-        // Validate input fields
         if (!login.username || !login.password) {
-            setError(API_NOTIFICATION_MESSAGES.validation.emptyFields.message);
+            setError(API_NOTIFICATION_MESSAGES.requestFailure.message);
             return;
         }
         setLoading(true);
@@ -106,7 +108,7 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
             }
         } catch (error) {
             console.error('Login error:', error);
-            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
+            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.networkError.message);
         } finally {
             setLoading(false);
         }
@@ -139,6 +141,7 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
     );
 };
 
+// Signup Form Component
 const SignupForm = ({ toggleAccount }) => {
     const [signup, setSignup] = useState({ name: '', username: '', password: '' });
     const [error, setError] = useState('');
@@ -150,9 +153,8 @@ const SignupForm = ({ toggleAccount }) => {
     };
 
     const signupUser = async () => {
-        // Validate input fields
         if (!signup.name || !signup.username || !signup.password) {
-            setError(API_NOTIFICATION_MESSAGES.validation.emptyFields.message);
+            setError(API_NOTIFICATION_MESSAGES.requestFailure.message);
             return;
         }
         setLoading(true);
@@ -161,13 +163,13 @@ const SignupForm = ({ toggleAccount }) => {
             if (response.isSuccess) {
                 toggleAccount('login');
                 setSignup({ name: '', username: '', password: '' });
-                setError(API_NOTIFICATION_MESSAGES.success.signup.message);
+                setError(API_NOTIFICATION_MESSAGES.success.message);
             } else {
                 setError(response.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
             }
         } catch (error) {
             console.error('Signup error:', error);
-            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
+            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.networkError.message);
         } finally {
             setLoading(false);
         }
