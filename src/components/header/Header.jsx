@@ -8,10 +8,14 @@ const Component = styled(AppBar)`
     background: #ffffff;
     color: black;
     box-shadow: none;
+    position: static;
 `;
 
 const Container = styled(Toolbar)`
+    display: flex;
     justify-content: space-between;
+    align-items: center;
+    min-height: 64px;
     padding: 0 16px;
 `;
 
@@ -21,25 +25,25 @@ const NavLinks = styled(Box)`
 
     & a {
         text-decoration: none;
-        color: #000;
+        color: inherit;
         font-weight: 500;
-        position: relative;
+        font-size: 16px;
         padding: 8px 0;
-    }
-
-    & a.active {
-        color: #1976d2;
-        font-weight: 600;
+        position: relative;
     }
 
     & a.active::after {
         content: "";
         position: absolute;
         left: 0;
-        bottom: 0;
+        bottom: -2px;
         height: 2px;
         width: 100%;
         background-color: #1976d2;
+    }
+
+    & a:hover {
+        color: #1976d2;
     }
 `;
 
@@ -52,7 +56,8 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
 
 const DesktopLinks = styled(Box)(({ theme }) => ({
     display: 'flex',
-    alignItems: 'center',
+    justifyContent: center,
+    alignItems: center,
     gap: '24px',
     [theme.breakpoints.down('sm')]: {
         display: 'none',
@@ -91,7 +96,7 @@ const Header = () => {
         setDrawerOpen(open);
     };
 
-    const renderLinks = (isDrawer = false) => (
+    const renderLinks = () => (
         <>
             <NavLink to="/" end>HOME</NavLink>
             <NavLink to="/about">ABOUT</NavLink>
@@ -101,7 +106,7 @@ const Header = () => {
     );
 
     return (
-        <Component position="static">
+        <Component>
             <Container>
                 {/* Mobile Menu Button */}
                 <MenuButton onClick={toggleDrawer(true)} aria-label="menu">
@@ -122,7 +127,7 @@ const Header = () => {
                         onClick={toggleDrawer(false)}
                         onKeyDown={toggleDrawer(false)}
                     >
-                        {renderLinks(true)}
+                        {renderLinks()}
                         <Divider sx={{ marginTop: 2 }} />
                     </DrawerContent>
                 </Drawer>
