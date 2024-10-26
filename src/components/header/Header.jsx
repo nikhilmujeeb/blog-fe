@@ -31,7 +31,7 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
 
 const DesktopLinks = styled(Box)(({ theme }) => ({
     display: 'flex',
-    textDecorationStyle: 'none',
+    textDecoration: 'none',
     [theme.breakpoints.down('sm')]: {
         display: 'none',
     },
