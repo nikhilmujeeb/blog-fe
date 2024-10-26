@@ -25,14 +25,14 @@ export const API_NOTIFICATION_MESSAGES = {
 export const SERVICE_URLS = {
     userLogin: { url: '/api/login', method: 'POST' },
     userSignup: { url: '/api/signup', method: 'POST' },
-    getAllPosts: { url: '/api/posts', method: 'GET', params: true },
-    getRefreshToken: { url: '/api/token', method: 'POST' },
-    uploadFile: { url: '/api/file/upload', method: 'POST' },
+    getAllPosts: { url: '/api/posts', method: 'GET' },
+    getPostById: { url: '/api/post/:id', method: 'GET' }, 
     createPost: { url: '/api/create', method: 'POST' },
-    deletePost: { url: '/api/delete', method: 'DELETE', query: true },
-    getPostById: { url: '/api/post', method: 'GET', query: true },
+    updatePost: { url: '/api/update/:id', method: 'PUT' },
+    deletePost: { url: '/api/delete/:id', method: 'DELETE' },
     newComment: { url: '/api/comment/new', method: 'POST' },
-    getAllComments: { url: '/api/comments', method: 'GET', query: true },
-    deleteComment: { url: '/api/comment/delete', method: 'DELETE', query: true },
-    updatePost: { url: '/api/update', method: 'PUT', query: true }
+    getAllComments: { url: '/api/comments/:postId', method: 'GET' },
+    deleteComment: { url: '/api/comment/delete/:id', method: 'DELETE' },
+    uploadFile: { url: '/api/file/upload', method: 'POST' },
+    getRefreshToken: { url: '/api/token', method: 'POST' }
 };

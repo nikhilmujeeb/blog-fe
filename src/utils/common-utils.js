@@ -27,3 +27,15 @@ export const getType = (value, body) => {
     }
     return {}; // Return empty object if no type is matched
 }
+
+const formatURL = (url, params) => {
+    return Object.keys(params).reduce(
+        (formattedUrl, key) => formattedUrl.replace(`:${key}`, params[key]),
+        url
+    );
+};
+
+// Usage Example:
+const postId = '12345';
+const url = formatURL(SERVICE_URLS.getPostById.url, { id: postId });
+console.log(url);  // Output: /api/post/12345

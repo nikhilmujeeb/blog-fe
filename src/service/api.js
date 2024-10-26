@@ -12,18 +12,17 @@ const axiosInstance = axios.create({
     },
 });
 
+// Request Interceptor: Adds Authorization Header
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = getAccessToken();
         if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
-    (error) => {
-        console.error('Request Error:', error);
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
+// Improved Response Handling
 const processResponse = (response) => {
     if (response?.status === 200) {
         return { isSuccess: true, data: response.data };
@@ -36,15 +35,13 @@ const processResponse = (response) => {
     };
 };
 
-const processError = async (error) => {
-    let message = API_NOTIFICATION_MESSAGES.responseFailure.message; // Default message
+// Improved Error Handling with Status Codes
+const processError = (error) => {
+    let message = API_NOTIFICATION_MESSAGES.responseFailure.message;
     if (error.response) {
         const { status, data } = error.response;
-        if (status === 403) {
-            message = 'Session expired. Please log in again.';
-        } else {
-            message = data?.msg || message; // Custom error message if available
-        }
+        message = data?.msg || `Error: ${status}`;
+        if (status === 403) message = 'Session expired. Please log in again.';
     } else if (error.request) {
         message = API_NOTIFICATION_MESSAGES.networkError.message;
     }
@@ -52,20 +49,20 @@ const processError = async (error) => {
     return { isError: true, msg: message };
 };
 
+// API Function Builder with Dynamic URLs
 const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
-    API[key] = (body, showUploadProgress) => {
-        const method = value.method.toLowerCase();
-        const url = value.url;
+    API[key] = (body, params, showUploadProgress) => {
+        const url = formatURL(value.url, params || {});
         const options = {
-            method: method,
-            url: url,
+            method: value.method.toLowerCase(),
+            url,
             data: body,
-            ...(showUploadProgress && { onUploadProgress: (progressEvent) => console.log(progressEvent) }),
+            ...(showUploadProgress && {
+                onUploadProgress: (progressEvent) => console.log(progressEvent),
+            }),
         };
-        return axiosInstance(options)
-            .then(processResponse)
-            .catch(processError);
+        return axiosInstance(options).then(processResponse).catch(processError);
     };
 }
 
