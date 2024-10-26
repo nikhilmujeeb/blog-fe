@@ -6,19 +6,42 @@ import MenuIcon from '@mui/icons-material/Menu';
 const Component = styled(AppBar)`
     background: #FFFFFF;
     color: black;
+    box-shadow: none;
 `;
 
 const Container = styled(Toolbar)`
+    display: flex;
     justify-content: center;
-    & > a {
-        padding: 20px;
-        color: #000;
+    align-items: center;
+    min-height: 64px; /* Ensure consistent header height */
+`;
+
+const LinkBox = styled(Box)`
+    display: flex;
+    gap: 32px;
+    align-items: center;
+
+    & a, & p {
         text-decoration: none;
+        color: black;
         font-weight: 500;
+        font-size: 18px;
+        cursor: pointer;
+        position: relative;
     }
-    & a.active {
-        color: #1976d2;  /* Highlight active link */
-        border-bottom: 2px solid #1976d2;
+
+    & a.active::after {
+        content: '';
+        position: absolute;
+        bottom: -4px;
+        left: 0;
+        width: 100%;
+        height: 2px;
+        background-color: #1976d2;
+    }
+
+    & a:hover, & p:hover {
+        color: #1976d2;
     }
 `;
 
@@ -31,50 +54,72 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
 
 const DesktopLinks = styled(Box)(({ theme }) => ({
     display: 'flex',
-    textDecoration: 'none',
+    justifyContent: center,
+    alignItems: 'center',
+    gap: '32px',
     [theme.breakpoints.down('sm')]: {
         display: 'none',
     },
 }));
+
+const DrawerContent = styled(Box)`
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 16px;
+
+    & a, & p {
+        text-decoration: none;
+        color: black;
+        font-weight: 500;
+        font-size: 18px;
+        cursor: pointer;
+    }
+
+    & a:hover, & p:hover {
+        color: #1976d2;
+    }
+`;
 
 const Header = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        // Perform any logout logic here (e.g., clear session)
         navigate('/account');
     };
 
-    const toggleDrawer = () => setDrawerOpen(!drawerOpen);
+    const toggleDrawer = (open) => () => {
+        setDrawerOpen(open);
+    };
+
+    const renderLinks = () => (
+        <>
+            <NavLink to="/" end>HOME</NavLink>
+            <NavLink to="/about">ABOUT</NavLink>
+            <NavLink to="/contact">CONTACT</NavLink>
+            <Typography onClick={handleLogout}>LOGOUT</Typography>
+        </>
+    );
 
     return (
         <Component position="static">
-            <Toolbar>
-                <MenuButton onClick={toggleDrawer} aria-label="menu">
+            <Container>
+                <MenuButton onClick={toggleDrawer(true)} aria-label="menu">
                     <MenuIcon />
                 </MenuButton>
-                
+
                 <DesktopLinks>
-                    <NavLink to="/" end>HOME</NavLink>
-                    <NavLink to="/about">ABOUT</NavLink>
-                    <NavLink to="/contact">CONTACT</NavLink>
-                    <Typography onClick={handleLogout} style={{ cursor: 'pointer', padding: '20px' }}>
-                        LOGOUT
-                    </Typography>
+                    <LinkBox>{renderLinks()}</LinkBox>
                 </DesktopLinks>
 
-                <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
-                    <Box p={2} role="presentation" onClick={toggleDrawer}>
-                        <NavLink to="/" end>HOME</NavLink>
-                        <NavLink to="/about">ABOUT</NavLink>
-                        <NavLink to="/contact">CONTACT</NavLink>
-                        <Typography onClick={handleLogout} style={{ cursor: 'pointer', padding: '10px 0' }}>
-                            LOGOUT
-                        </Typography>
-                    </Box>
+                <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+                    <DrawerContent onClick={toggleDrawer(false)}>
+                        {renderLinks()}
+                    </DrawerContent>
                 </Drawer>
-            </Toolbar>
+            </Container>
         </Component>
     );
 };
