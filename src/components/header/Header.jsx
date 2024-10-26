@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
-import { AppBar, Toolbar, styled, IconButton, Drawer, Box, Typography, Divider } from '@mui/material';
+import { AppBar, Toolbar, styled, IconButton, Drawer, Box, Typography } from '@mui/material';
 import { NavLink, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 
 // Styled Components
 const Component = styled(AppBar)`
     background: #ffffff;
-    color: black;
     box-shadow: none;
-    position: static;
 `;
 
 const Container = styled(Toolbar)`
@@ -16,29 +14,28 @@ const Container = styled(Toolbar)`
     justify-content: space-between;
     align-items: center;
     min-height: 64px;
-    padding: 0 16px;
+    padding: 0 24px;
 `;
 
 const NavLinks = styled(Box)`
     display: flex;
-    gap: 24px;
+    gap: 32px;
 
     & a {
         text-decoration: none;
         color: inherit;
         font-weight: 500;
-        font-size: 16px;
-        padding: 8px 0;
+        font-size: 18px;
         position: relative;
     }
 
     & a.active::after {
-        content: "";
+        content: '';
         position: absolute;
+        bottom: -4px;
         left: 0;
-        bottom: -2px;
-        height: 2px;
         width: 100%;
+        height: 2px;
         background-color: #1976d2;
     }
 
@@ -56,9 +53,9 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
 
 const DesktopLinks = styled(Box)(({ theme }) => ({
     display: 'flex',
-    justifyContent: center,
-    alignItems: center,
-    gap: '24px',
+    justifyContent: 'center',
+    alignItems: 'center',
+    gap: '32px',
     [theme.breakpoints.down('sm')]: {
         display: 'none',
     },
@@ -69,6 +66,17 @@ const DrawerContent = styled(Box)`
     display: flex;
     flex-direction: column;
     padding: 16px;
+
+    & a {
+        margin-bottom: 16px;
+        text-decoration: none;
+        color: inherit;
+        font-weight: 500;
+    }
+
+    & a:hover {
+        color: #1976d2;
+    }
 `;
 
 const LogoutText = styled(Typography)`
@@ -79,7 +87,6 @@ const LogoutText = styled(Typography)`
     }
 `;
 
-// Header Component
 const Header = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const navigate = useNavigate();
@@ -89,10 +96,7 @@ const Header = () => {
         navigate('/account');
     };
 
-    const toggleDrawer = (open) => (event) => {
-        if (event.type === 'keydown' && (event.key === 'Tab' || event.key === 'Shift')) {
-            return;
-        }
+    const toggleDrawer = (open) => () => {
         setDrawerOpen(open);
     };
 
@@ -106,29 +110,17 @@ const Header = () => {
     );
 
     return (
-        <Component>
+        <Component position="static">
             <Container>
-                {/* Mobile Menu Button */}
                 <MenuButton onClick={toggleDrawer(true)} aria-label="menu">
                     <MenuIcon />
                 </MenuButton>
 
-                {/* Desktop Links */}
                 <DesktopLinks>{renderLinks()}</DesktopLinks>
 
-                {/* Drawer for Mobile */}
-                <Drawer
-                    anchor="left"
-                    open={drawerOpen}
-                    onClose={toggleDrawer(false)}
-                >
-                    <DrawerContent
-                        role="presentation"
-                        onClick={toggleDrawer(false)}
-                        onKeyDown={toggleDrawer(false)}
-                    >
+                <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
+                    <DrawerContent onClick={toggleDrawer(false)}>
                         {renderLinks()}
-                        <Divider sx={{ marginTop: 2 }} />
                     </DrawerContent>
                 </Drawer>
             </Container>
