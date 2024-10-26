@@ -25,7 +25,7 @@ export const API_NOTIFICATION_MESSAGES = {
 export const SERVICE_URLS = {
     userLogin: { url: '/api/login', method: 'POST' },
     userSignup: { url: '/api/signup', method: 'POST' },
-    getAllPosts: { url: '/api/posts', method: 'GET', params: true },
+    getAllPosts: { url: '/posts', method: 'GET', params: true },
     getRefreshToken: { url: '/api/token', method: 'POST' },
     uploadFile: { url: '/api/file/upload', method: 'POST' },
     createPost: { url: '/api/create', method: 'POST' },
