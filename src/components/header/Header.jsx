@@ -5,15 +5,14 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 const Component = styled(AppBar)`
     background: #FFFFFF;
-    color: black;
     box-shadow: none;
 `;
 
 const Container = styled(Toolbar)`
     display: flex;
     justify-content: center;
-    align-items: center;
-    min-height: 64px; /* Ensure consistent header height */
+    align-items: center; /* Fix alignment here */
+    min-height: 64px;
 `;
 
 const LinkBox = styled(Box)`
@@ -49,16 +48,6 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
     display: 'none',
     [theme.breakpoints.down('sm')]: {
         display: 'block',
-    },
-}));
-
-const DesktopLinks = styled(Box)(({ theme }) => ({
-    display: 'flex',
-    justifyContent: center,
-    alignItems: 'center',
-    gap: '32px',
-    [theme.breakpoints.down('sm')]: {
-        display: 'none',
     },
 }));
 
@@ -110,9 +99,7 @@ const Header = () => {
                     <MenuIcon />
                 </MenuButton>
 
-                <DesktopLinks>
-                    <LinkBox>{renderLinks()}</LinkBox>
-                </DesktopLinks>
+                <LinkBox>{renderLinks()}</LinkBox>
 
                 <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
                     <DrawerContent onClick={toggleDrawer(false)}>
