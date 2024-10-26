@@ -15,7 +15,7 @@ export const setAccessToken = (accessToken) => {
 
 // Set the refresh token in session storage
 export const setRefreshToken = (refreshToken) => {
-    sessionStorage.setItem('refreshToken', `Bearer ${refreshToken}`);
+    sessionStorage.setItem('refreshToken', refreshToken); // No need for 'Bearer' in refresh token
 }
 
 // Determine the type of request (params or query) based on the provided value
