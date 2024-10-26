@@ -3,44 +3,22 @@ import { AppBar, Toolbar, styled, IconButton, Drawer, Box, Typography } from '@m
 import { NavLink, useNavigate } from 'react-router-dom';
 import MenuIcon from '@mui/icons-material/Menu';
 
-// Styled Components
 const Component = styled(AppBar)`
-    background: #ffffff;
-    box-shadow: none;
+    background: #FFFFFF;
+    color: black;
 `;
 
 const Container = styled(Toolbar)`
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    min-height: 64px;
-    padding: 0 24px;
-`;
-
-const NavLinks = styled(Box)`
-    display: flex;
-    gap: 32px;
-
-    & a {
+    justify-content: center;
+    & > a {
+        padding: 20px;
+        color: #000;
         text-decoration: none;
-        color: inherit;
         font-weight: 500;
-        font-size: 18px;
-        position: relative;
     }
-
-    & a.active::after {
-        content: '';
-        position: absolute;
-        bottom: -4px;
-        left: 0;
-        width: 100%;
-        height: 2px;
-        background-color: #1976d2;
-    }
-
-    & a:hover {
-        color: #1976d2;
+    & a.active {
+        color: #1976d2;  /* Highlight active link */
+        border-bottom: 2px solid #1976d2;
     }
 `;
 
@@ -53,77 +31,50 @@ const MenuButton = styled(IconButton)(({ theme }) => ({
 
 const DesktopLinks = styled(Box)(({ theme }) => ({
     display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    gap: '32px',
+    textDecorationStyle: 'none',
     [theme.breakpoints.down('sm')]: {
         display: 'none',
     },
 }));
-
-const DrawerContent = styled(Box)`
-    width: 250px;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-
-    & a {
-        margin-bottom: 16px;
-        text-decoration: none;
-        color: inherit;
-        font-weight: 500;
-    }
-
-    & a:hover {
-        color: #1976d2;
-    }
-`;
-
-const LogoutText = styled(Typography)`
-    cursor: pointer;
-    font-weight: 500;
-    &:hover {
-        color: #1976d2;
-    }
-`;
 
 const Header = () => {
     const [drawerOpen, setDrawerOpen] = useState(false);
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        // Clear session or token storage here
+        // Perform any logout logic here (e.g., clear session)
         navigate('/account');
     };
 
-    const toggleDrawer = (open) => () => {
-        setDrawerOpen(open);
-    };
-
-    const renderLinks = () => (
-        <>
-            <NavLink to="/" end>HOME</NavLink>
-            <NavLink to="/about">ABOUT</NavLink>
-            <NavLink to="/contact">CONTACT</NavLink>
-            <LogoutText onClick={handleLogout}>LOGOUT</LogoutText>
-        </>
-    );
+    const toggleDrawer = () => setDrawerOpen(!drawerOpen);
 
     return (
         <Component position="static">
-            <Container>
-                <MenuButton onClick={toggleDrawer(true)} aria-label="menu">
+            <Toolbar>
+                <MenuButton onClick={toggleDrawer} aria-label="menu">
                     <MenuIcon />
                 </MenuButton>
+                
+                <DesktopLinks>
+                    <NavLink to="/" end>HOME</NavLink>
+                    <NavLink to="/about">ABOUT</NavLink>
+                    <NavLink to="/contact">CONTACT</NavLink>
+                    <Typography onClick={handleLogout} style={{ cursor: 'pointer', padding: '20px' }}>
+                        LOGOUT
+                    </Typography>
+                </DesktopLinks>
 
-                <DesktopLinks>{renderLinks()}</DesktopLinks>
-
-                <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer(false)}>
-                    <DrawerContent onClick={toggleDrawer(false)}>
-                        {renderLinks()}
-                    </DrawerContent>
+                <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
+                    <Box p={2} role="presentation" onClick={toggleDrawer}>
+                        <NavLink to="/" end>HOME</NavLink>
+                        <NavLink to="/about">ABOUT</NavLink>
+                        <NavLink to="/contact">CONTACT</NavLink>
+                        <Typography onClick={handleLogout} style={{ cursor: 'pointer', padding: '10px 0' }}>
+                            LOGOUT
+                        </Typography>
+                    </Box>
                 </Drawer>
-            </Container>
+            </Toolbar>
         </Component>
     );
 };
