@@ -4,7 +4,6 @@ import { getAccessToken, formatURL } from '../utils/common-utils';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.com';
 
-// Create Axios Instance
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 30000,
@@ -13,7 +12,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add Authorization Header Interceptor
+// Authorization Interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
@@ -23,7 +22,17 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Process API Responses
+// Retry Mechanism for Network Errors
+const retryRequest = (error) => {
+  const config = error.config;
+  if (!config._retry) {
+    config._retry = true;
+    return axiosInstance(config);
+  }
+  return Promise.reject(error);
+};
+
+// Response Processor
 const processResponse = (response) => {
   if (response?.status === 200 || response?.status === 201) {
     return { isSuccess: true, data: response.data };
@@ -36,7 +45,7 @@ const processResponse = (response) => {
   };
 };
 
-// Handle API Errors
+// Error Processor
 const processError = (error) => {
   let message = API_NOTIFICATION_MESSAGES.networkError.message;
 
@@ -44,8 +53,11 @@ const processError = (error) => {
     const { status, data } = error.response;
     message = data?.msg || `Error: ${status}`;
     if (status === 403) message = 'Session expired. Please log in again.';
+    if (status === 404) message = 'Requested resource not found.';
   } else if (error.request) {
     message = 'No response received from server. Please try again.';
+  } else if (error.message.includes('Network Error') || error.message.includes('CORS')) {
+    message = 'Network or CORS error. Please check the server configuration.';
   }
 
   console.error('API Error:', message);
@@ -62,14 +74,16 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
       url,
       data: body,
       ...(showUploadProgress && {
-        onUploadProgress: (progressEvent) =>
-          console.log('Upload Progress:', Math.round((progressEvent.loaded * 100) / progressEvent.total)),
+        onUploadProgress: (progressEvent) => {
+          const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+          console.log(`Upload Progress: ${progress}%`);
+        },
       }),
     };
 
     return axiosInstance(options)
       .then(processResponse)
-      .catch(processError);
+      .catch((error) => retryRequest(error).catch(processError));
   };
 }
 
