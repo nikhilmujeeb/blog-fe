@@ -2,29 +2,27 @@ import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 import { getAccessToken, formatURL } from '../utils/common-utils';
 
-// Define API base URL
 const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.com';
 
-// Create axios instance with default settings
 const axiosInstance = axios.create({
   baseURL: API_URL,
-  timeout: 30000, // Set timeout to 30 seconds
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Request Interceptor: Adds Authorization Header to every request
+// Add Authorization Header if Access Token Exists
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
     if (token) config.headers.Authorization = `Bearer ${token}`;
     return config;
   },
-  (error) => Promise.reject(error) // Reject promise if there's an error
+  (error) => Promise.reject(error)
 );
 
-// Response handler: Checks and returns response data
+// Process API Response
 const processResponse = (response) => {
   if (response?.status === 200) {
     return { isSuccess: true, data: response.data };
@@ -37,7 +35,7 @@ const processResponse = (response) => {
   };
 };
 
-// Error handler: Handles various types of errors (Network, 4xx, 5xx, etc.)
+// Handle API Errors
 const processError = (error) => {
   let message = API_NOTIFICATION_MESSAGES.networkError.message;
 
@@ -45,15 +43,13 @@ const processError = (error) => {
     const { status, data } = error.response;
     message = data?.msg || `Error: ${status}`;
     if (status === 403) message = 'Session expired. Please log in again.';
-  } else if (error.request) {
-    message = API_NOTIFICATION_MESSAGES.networkError.message;
   }
 
   console.error('API Error:', message);
   return { isError: true, msg: message };
 };
 
-// Dynamic API Builder: Generates API functions for all routes in SERVICE_URLS
+// Dynamic API Builder
 const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
   API[key] = (body, params, showUploadProgress) => {

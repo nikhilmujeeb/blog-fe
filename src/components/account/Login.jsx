@@ -92,27 +92,27 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
 
     const loginUser = async () => {
         if (!login.username || !login.password) {
-            setError(API_NOTIFICATION_MESSAGES.requestFailure.message);
-            return;
+          setError(API_NOTIFICATION_MESSAGES.requestFailure.message);
+          return;
         }
         setLoading(true);
         try {
-            const response = await API.userLogin(login);
-            if (response.isSuccess) {
-                sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
-                setAccount({ name: response.data.name, username: response.data.username });
-                setIsUserAuthenticated(true);
-                navigate('/');
-            } else {
-                setError(response.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
-            }
+          const response = await API.userLogin(login);
+          if (response.isSuccess) {
+            sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
+            setAccount({ name: response.data.name, username: response.data.username });
+            setIsUserAuthenticated(true);
+            navigate('/');
+          } else {
+            setError(response.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);
+          }
         } catch (error) {
-            console.error('Login error:', error);
-            setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.networkError.message);
+          console.error('Login error:', error);
+          setError(error.response?.data?.msg || API_NOTIFICATION_MESSAGES.networkError.message);
         } finally {
-            setLoading(false);
+          setLoading(false);
         }
-    };
+      };      
 
     return (
         <Wrapper>
