@@ -4,6 +4,7 @@ import { getAccessToken, formatURL } from '../utils/common-utils';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.com';
 
+// Create Axios Instance
 const axiosInstance = axios.create({
   baseURL: API_URL,
   timeout: 30000,
@@ -12,7 +13,7 @@ const axiosInstance = axios.create({
   },
 });
 
-// Add Authorization Header if Access Token Exists
+// Add Authorization Header Interceptor
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
@@ -22,9 +23,9 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Process API Response
+// Process API Responses
 const processResponse = (response) => {
-  if (response?.status === 200) {
+  if (response?.status === 200 || response?.status === 201) {
     return { isSuccess: true, data: response.data };
   }
   return {
@@ -43,6 +44,8 @@ const processError = (error) => {
     const { status, data } = error.response;
     message = data?.msg || `Error: ${status}`;
     if (status === 403) message = 'Session expired. Please log in again.';
+  } else if (error.request) {
+    message = 'No response received from server. Please try again.';
   }
 
   console.error('API Error:', message);
@@ -59,11 +62,14 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
       url,
       data: body,
       ...(showUploadProgress && {
-        onUploadProgress: (progressEvent) => console.log('Upload Progress:', progressEvent),
+        onUploadProgress: (progressEvent) =>
+          console.log('Upload Progress:', Math.round((progressEvent.loaded * 100) / progressEvent.total)),
       }),
     };
 
-    return axiosInstance(options).then(processResponse).catch(processError);
+    return axiosInstance(options)
+      .then(processResponse)
+      .catch(processError);
   };
 }
 
