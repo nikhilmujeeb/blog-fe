@@ -13,19 +13,20 @@ const Posts = () => {
 
     useEffect(() => {
         const fetchData = async () => {
-            setLoading(true); 
+            setLoading(true);
             setError(null);
 
             try {
-                const response = await API.getAllPosts({ category: category || '' });
+                const response = await API.getAllPosts(null, { category: category || '' });
                 console.log(response);
+
                 if (response.isSuccess) {
                     setPosts(response.data || []);
                 } else {
-                    setError('Failed to fetch posts.');
+                    setError(response.msg || 'Failed to fetch posts.');
                 }
             } catch (err) {
-                console.error("Fetch Error:", err); 
+                console.error("Fetch Error:", err);
                 setError('An error occurred while fetching posts.');
             } finally {
                 setLoading(false);
@@ -61,7 +62,7 @@ const Posts = () => {
 
     return (
         <Grid container spacing={2} sx={{ padding: '20px' }}>
-            {posts.map(post => (
+            {posts.map((post) => (
                 <Grid item lg={3} sm={4} xs={12} key={post._id}>
                     <Link to={`post/${post._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <Post post={post} />
