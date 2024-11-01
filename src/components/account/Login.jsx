@@ -79,7 +79,6 @@ const Login = ({ setIsUserAuthenticated }) => {
     );
 };
 
-// Login Form Component
 const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate }) => {
     const [login, setLogin] = useState({ username: '', password: '' });
     const [error, setError] = useState('');
@@ -101,7 +100,7 @@ const LoginForm = ({ toggleAccount, setIsUserAuthenticated, setAccount, navigate
           if (response.isSuccess) {
             sessionStorage.setItem('accessToken', `Bearer ${response.data.accessToken}`);
             setAccount({ name: response.data.name, username: response.data.username });
-            setIsUserAuthenticated(true);
+            setIsUserAuthenticated(true);  // Set authentication status on successful login
             navigate('/');
           } else {
             setError(response.msg || API_NOTIFICATION_MESSAGES.responseFailure.message);

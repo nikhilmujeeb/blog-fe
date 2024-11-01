@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
-import { getAccessToken, formatURL } from '../utils/common-utils';
+import { formatURL } from '../utils/common-utils';
 
 const API_URL = process.env.REACT_APP_API_URL || 'https://blog-be-3tvt.onrender.com';
 
@@ -15,22 +15,12 @@ const axiosInstance = axios.create({
 // Authorization Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
-        const token = getAccessToken();
-        if (token) config.headers.Authorization = `Bearer ${token}`;
+        const token = sessionStorage.getItem('accessToken');
+        if (token) config.headers.Authorization = `${token}`;
         return config;
     },
     (error) => Promise.reject(error)
 );
-
-// Retry Mechanism for Network Errors
-const retryRequest = (error) => {
-    const config = error.config;
-    if (!config._retry) {
-        config._retry = true;
-        return axiosInstance(config);
-    }
-    return Promise.reject(error);
-};
 
 // Response Processor
 const processResponse = (response) => {
@@ -48,6 +38,7 @@ const processResponse = (response) => {
 // Error Processor
 const processError = (error) => {
     let message = API_NOTIFICATION_MESSAGES.networkError.message;
+    console.error("Detailed API Error:", error); // Logs full error details
 
     if (error.response) {
         const { status, data } = error.response;
@@ -83,7 +74,7 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
 
         return axiosInstance(options)
             .then(processResponse)
-            .catch((error) => retryRequest(error).catch(processError));
+            .catch(processError); 
     };
 }
 

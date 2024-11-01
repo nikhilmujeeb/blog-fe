@@ -11,7 +11,7 @@ const Component = styled(AppBar)`
 const Container = styled(Toolbar)`
     display: flex;
     justify-content: center;
-    align-items: center; /* Fix alignment here */
+    align-items: center;
     min-height: 64px;
 `;
 

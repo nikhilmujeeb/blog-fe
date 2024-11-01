@@ -1,5 +1,6 @@
 import React from 'react';
 import { styled, Box, Typography } from '@mui/material';
+import PropTypes from 'prop-types';
 
 const Container = styled(Box)`
     border: 1px solid #d3cede;
@@ -10,10 +11,11 @@ const Container = styled(Box)`
     flex-direction: column;
     height: 350px;
     width: 100%;
-    max-width: 350px;  /* Ensure max-width */
+    max-width: 350px; 
     overflow: hidden;
-    & > img, & > p {
-        padding: 0 5px 5px 5px;
+    &:hover {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease;
     }
 `;
 
@@ -56,15 +58,33 @@ const Post = ({ post }) => {
             ? post.categories.join(', ') 
             : 'Uncategorized';
 
+    const title = post.title || 'Untitled';
+    const username = post.username || 'Anonymous';
+    const description = post.description || '';
+
+    const handleImageError = (e) => {
+        e.target.src = 'https://via.placeholder.com/150'; // Fallback image
+    };
+
     return (
         <Container>
-            <Image src={url} alt={post.title || 'Post Image'} />
+            <Image src={url} alt={title} onError={handleImageError} />
             <Text>{displayCategories()}</Text>
-            <Heading>{addEllipsis(post.title, 20)}</Heading>
-            <Text>Author: {post.username}</Text>
-            <Details>{addEllipsis(post.description, 100)}</Details>
+            <Heading>{addEllipsis(title, 20)}</Heading>
+            <Text>Author: {username}</Text>
+            <Details>{addEllipsis(description, 100)}</Details>
         </Container>
     );
+};
+
+Post.propTypes = {
+    post: PropTypes.shape({
+        title: PropTypes.string,
+        description: PropTypes.string,
+        picture: PropTypes.string,
+        username: PropTypes.string,
+        categories: PropTypes.arrayOf(PropTypes.string),
+    }).isRequired,
 };
 
 export default Post;

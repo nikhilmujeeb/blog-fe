@@ -16,18 +16,22 @@ const Posts = () => {
             setLoading(true);
             setError(null);
 
+            console.log('Fetching posts with category:', category);
+
             try {
-                const response = await API.getAllPosts(null, { category: category || '' });
-                console.log(response);
+                const response = await API.getAllPosts(null, category ? { category } : null);
+                console.log('API Response:', response); // Log full response
 
                 if (response.isSuccess) {
-                    setPosts(response.data || []);
+                    console.log('Response Data:', response.data); // Log data structure
+                    setPosts(response.data.posts || []); // Adjust according to actual data structure
                 } else {
                     setError(response.msg || 'Failed to fetch posts.');
                 }
             } catch (err) {
                 console.error("Fetch Error:", err);
-                setError('An error occurred while fetching posts.');
+                const message = err.response && err.response.data ? err.response.data.msg : 'An error occurred while fetching posts.';
+                setError(message);
             } finally {
                 setLoading(false);
             }
@@ -39,6 +43,7 @@ const Posts = () => {
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
+                <Typography variant="h6" sx={{ marginRight: 2 }}>Loading posts...</Typography>
                 <CircularProgress />
             </Box>
         );
@@ -55,7 +60,7 @@ const Posts = () => {
     if (!posts.length) {
         return (
             <Box sx={{ color: '#878787', margin: '30px 80px', fontSize: 18, textAlign: 'center' }}>
-                No data is available for the selected category
+                No posts found for this category. Try a different category!
             </Box>
         );
     }
@@ -64,7 +69,8 @@ const Posts = () => {
         <Grid container spacing={2} sx={{ padding: '20px' }}>
             {posts.map((post) => (
                 <Grid item lg={3} sm={4} xs={12} key={post._id}>
-                    <Link to={`post/${post._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
+                    {/* Updated Link to navigate to DetailView */}
+                    <Link to={`/details/${post._id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                         <Post post={post} />
                     </Link>
                 </Grid>
