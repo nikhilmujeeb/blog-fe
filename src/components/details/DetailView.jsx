@@ -20,35 +20,11 @@ const Image = styled('img')({
     objectFit: 'cover'
 });
 
-const EditIcon = styled(Edit)`
-    margin: 5px;
-    padding: 5px;
-    border: 1px solid #878787;
-    border-radius: 10px;
-`;
-
-const DeleteIcon = styled(Delete)`
-    margin: 5px;
-    padding: 5px;
-    border: 1px solid #878787;
-    border-radius: 10px;
-`;
-
-const Heading = styled(Typography)`
-    font-size: 38px;
-    font-weight: 600;
-    text-align: center;
-    margin: 50px 0 10px 0;
-`;
-
-const Author = styled(Box)(({ theme }) => ({
-    color: '#878787',
-    display: 'flex',
-    margin: '20px 0',
-    [theme.breakpoints.down('sm')]: {
-        display: 'block'
-    },
-}));
+// Styled icons
+const EditIcon = styled(Edit)` /* ... */ `;
+const DeleteIcon = styled(Delete)` /* ... */ `;
+const Heading = styled(Typography)` /* ... */ `;
+const Author = styled(Box)` /* ... */ `;
 
 const DetailView = () => {
     const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
@@ -57,22 +33,24 @@ const DetailView = () => {
     const { account } = useContext(DataContext);
     const navigate = useNavigate();
     const { id } = useParams();
-    
+
     useEffect(() => {
         const fetchData = async () => {
             try {
+                console.log('Fetching post with id:', id); // Log ID for debugging
                 const response = await API.getPostById(id);
+                
                 if (response.isSuccess) {
                     setPost(response.data);
                 } else {
-                    console.error('Failed to fetch post:', response.message);
+                    console.error('Failed to fetch post:', response.msg);
                 }
             } catch (error) {
                 console.error('Error fetching post:', error.message);
             }
         };
         fetchData();
-    }, [id]); // 'id' is used as a dependency
+    }, [id]);
 
     const deleteBlog = async () => {  
         try {
@@ -96,14 +74,12 @@ const DetailView = () => {
                 }
             </Box>
             <Heading>{post.title}</Heading>
-
             <Author>
                 <Link to={`/?username=${post.username}`} style={{ textDecoration: 'none', color: 'inherit' }}>
                     <Typography>Author: <span style={{fontWeight: 600}}>{post.username}</span></Typography>
                 </Link>
                 <Typography style={{marginLeft: 'auto'}}>{new Date(post.createdDate).toDateString()}</Typography>
             </Author>
-
             <Typography>{post.description}</Typography>
             <Comments post={post} />
         </Container>

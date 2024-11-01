@@ -78,4 +78,10 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
     };
 }
 
+export const getPostById = async (id) => {
+    return await axiosInstance.get(`/api/post/${id}`)
+        .then(processResponse)
+        .catch(processError);
+};
+
 export { API };
