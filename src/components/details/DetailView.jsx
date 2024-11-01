@@ -2,6 +2,7 @@ import { useState, useEffect, useContext } from 'react';
 import { Box, Typography, styled } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import mongoose from 'mongoose'; // Import mongoose for ObjectId validation
 
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
@@ -60,6 +61,10 @@ const DetailView = () => {
     
     useEffect(() => {
         const fetchData = async () => {
+            if (!mongoose.Types.ObjectId.isValid(id)) {
+                console.error('Invalid ObjectId:', id);
+                return; // Prevent fetch if ID is invalid
+            }
             try {
                 const response = await API.getPostById(id);
                 if (response.isSuccess) {
@@ -75,8 +80,12 @@ const DetailView = () => {
     }, [id]); // Added 'id' as a dependency
 
     const deleteBlog = async () => {  
-        await API.deletePost(post._id);
-        navigate('/');
+        try {
+            await API.deletePost(post._id);
+            navigate('/');
+        } catch (error) {
+            console.error('Error deleting post:', error.message);
+        }
     };
 
     return (
