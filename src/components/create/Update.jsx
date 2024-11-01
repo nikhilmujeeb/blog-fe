@@ -67,9 +67,14 @@ const Update = () => {
                 if (response.isSuccess) {
                     setPost(response.data);
                     setImageURL(response.data.picture);
+                } else {
+                    setError('Failed to fetch post data.');
+                    setOpenSnackbar(true);
                 }
             } catch (error) {
                 console.error('Error fetching post data:', error);
+                setError('Error fetching post data.');
+                setOpenSnackbar(true);
             }
         };
         fetchData();
@@ -89,9 +94,13 @@ const Update = () => {
                             ...prevPost,
                             picture: response.data
                         }));
+                    } else {
+                        setError('Error uploading file.');
+                        setOpenSnackbar(true);
                     }
                 } catch (error) {
                     setError('Error uploading file.');
+                    setOpenSnackbar(true);
                 }
             }
         };
@@ -99,12 +108,12 @@ const Update = () => {
     }, [file]);
 
     const updateBlogPost = async () => {
-        // Remove mongoose validation
         if (!post.title || !post.description) {
             setError('Title and description cannot be empty.');
             setOpenSnackbar(true);
             return;
         }
+
         setLoading(true);
         try {
             const response = await API.updatePost(post);
@@ -112,13 +121,14 @@ const Update = () => {
                 navigate(`/post/${id}`);
             } else {
                 setError('Failed to update the post.');
+                setOpenSnackbar(true);
             }
         } catch (error) {
             console.error('Error updating post:', error);
             setError('An error occurred. Please try again.');
+            setOpenSnackbar(true);
         } finally {
             setLoading(false);
-            setOpenSnackbar(true);
         }
     };
 
