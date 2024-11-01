@@ -12,7 +12,6 @@ const axiosInstance = axios.create({
     },
 });
 
-// Authorization Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = sessionStorage.getItem('accessToken');
@@ -22,7 +21,6 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response Processor
 const processResponse = (response) => {
     if (response?.status === 200 || response?.status === 201) {
         return { isSuccess: true, data: response.data };
@@ -35,7 +33,6 @@ const processResponse = (response) => {
     };
 };
 
-// Error Processor
 const processError = (error) => {
     let message = API_NOTIFICATION_MESSAGES.networkError.message;
     console.error("Detailed API Error:", error); // Logs full error details
@@ -55,7 +52,6 @@ const processError = (error) => {
     return { isError: true, msg: message };
 };
 
-// Dynamic API Builder
 const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, params, showUploadProgress) => {
@@ -74,7 +70,7 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
 
         return axiosInstance(options)
             .then(processResponse)
-            .catch(processError); 
+            .catch(processError);
     };
 }
 
@@ -86,6 +82,12 @@ API.getPostById = async (id) => {
 
 API.updatePost = async (post) => {
     return await axiosInstance.put(`/api/update/${post._id}`, post)
+        .then(processResponse)
+        .catch(processError);
+};
+
+API.deletePost = async (id) => {
+    return await axiosInstance.delete(`/api/delete/${id}`)
         .then(processResponse)
         .catch(processError);
 };

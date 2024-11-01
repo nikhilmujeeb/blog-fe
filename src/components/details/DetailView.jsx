@@ -10,21 +10,21 @@ import Comments from './comments/Comments';
 const Container = styled(Box)(({ theme }) => ({
     margin: '50px 100px',
     [theme.breakpoints.down('md')]: {
-        margin: 0
+        margin: 0,
     },
 }));
 
 const Image = styled('img')({
     width: '100%',
     height: '50vh',
-    objectFit: 'cover'
+    objectFit: 'cover',
 });
 
 // Styled icons
-const EditIcon = styled(Edit)` /* ... */ `;
-const DeleteIcon = styled(Delete)` /* ... */ `;
-const Heading = styled(Typography)` /* ... */ `;
-const Author = styled(Box)` /* ... */ `;
+const EditIcon = styled(Edit)``;
+const DeleteIcon = styled(Delete)``;
+const Heading = styled(Typography)``;
+const Author = styled(Box)``;
 
 const DetailView = () => {
     const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
@@ -57,9 +57,18 @@ const DetailView = () => {
     }, [id]);    
 
     const deleteBlog = async () => {  
+        if (!post._id || !/^[a-fA-F0-9]{24}$/.test(post._id)) {
+            console.error('Invalid post ID:', post._id);
+            return;
+        }
         try {
-            await API.deletePost(post._id);
-            navigate('/');
+            const response = await API.deletePost(post._id);
+            console.log('Delete response:', response);
+            if (response.isSuccess) {
+                navigate('/');
+            } else {
+                console.error('Delete failed:', response.msg);
+            }
         } catch (error) {
             console.error('Error deleting post:', error.message);
         }
