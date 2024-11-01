@@ -112,4 +112,12 @@ API.deletePost = async (id) => {
         .catch(processError);
 };
 
+API.uploadImage = async (formData) => {
+    return await axiosInstance.post('/api/file/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    }).then(processResponse).catch(processError);
+};
+
 export { API };
