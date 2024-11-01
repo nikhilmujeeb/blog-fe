@@ -57,14 +57,16 @@ const CreatePost = () => {
     const navigate = useNavigate();
     const { account } = useContext(DataContext);
     const [post, setPost] = useState(initialPost);
-    const [file, setFile] = useState('');
+    const [file, setFile] = useState(null);
     const [category, setCategory] = useState('Music');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(false);
 
-    const url = post.picture || 
+    // URL for the image, either from post or default image
+    const url = file ? URL.createObjectURL(file) : post.picture || 
         'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
 
+    // Upload the image to the server
     useEffect(() => {
         const uploadImage = async () => {
             if (file) {
@@ -76,7 +78,7 @@ const CreatePost = () => {
                 if (response.isSuccess) {
                     setPost((prevPost) => ({
                         ...prevPost,
-                        picture: response.data
+                        picture: response.data // Set picture from response
                     }));
                 }
             }
@@ -96,7 +98,8 @@ const CreatePost = () => {
     };
 
     const handleFileChange = (e) => {
-        setFile(e.target.files[0]);
+        const selectedFile = e.target.files[0];
+        setFile(selectedFile); // Set the selected file
     };
 
     const savePost = async () => {
@@ -110,7 +113,7 @@ const CreatePost = () => {
 
         if (response.isSuccess) {
             setPost(initialPost); // Clear the form
-            setFile('');
+            setFile(null);
             setCategory('Music'); // Reset category
             navigate('/');
         } else {
@@ -120,7 +123,7 @@ const CreatePost = () => {
 
     return (
         <Container>
-            <Image src={url} alt="post" />
+            <Image src={url} alt="post" /> {/* Show the uploaded image or default */}
 
             <StyledFormControl>
                 <label htmlFor="fileInput">

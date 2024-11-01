@@ -1,5 +1,5 @@
 import { useState, useEffect, useContext } from 'react';
-import { Box, Typography, styled, Button } from '@mui/material';
+import { Box, Typography, styled } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { API } from '../../service/api';
@@ -69,26 +69,6 @@ const DetailView = () => {
         }
     };
 
-    const handleImageUpload = async (event) => {
-        const file = event.target.files[0];
-        const formData = new FormData();
-        formData.append('file', file);
-
-        try {
-            const response = await API.uploadImage(formData);
-            if (response.isSuccess) {
-                setPost((prevPost) => ({
-                    ...prevPost,
-                    picture: response.data.url,
-                }));
-            } else {
-                console.error('Image upload failed:', response.msg);
-            }
-        } catch (error) {
-            console.error('Error uploading image:', error.msg);
-        }
-    };
-
     return (
         <Container>
             <Image src={post.picture || url} alt="post" />
@@ -111,13 +91,6 @@ const DetailView = () => {
                 <Typography style={{ marginLeft: 'auto' }}>{new Date(post.createdDate).toDateString()}</Typography>
             </Author>
             <Typography>{post.description}</Typography>
-            
-            {account.username === post.username && (
-                <Box>
-                    <input type="file" accept="image/*" onChange={handleImageUpload} />
-                </Box>
-            )}
-
             <Comments post={post} />
         </Container>
     );
