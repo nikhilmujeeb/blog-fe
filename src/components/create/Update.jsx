@@ -99,12 +99,7 @@ const Update = () => {
     }, [file]);
 
     const updateBlogPost = async () => {
-        if (!mongoose.Types.ObjectId.isValid(id)) {
-            setError('Invalid Post ID.');
-            setOpenSnackbar(true);
-            return;
-        }
-    
+        // Remove mongoose validation
         if (!post.title || !post.description) {
             setError('Title and description cannot be empty.');
             setOpenSnackbar(true);
