@@ -20,7 +20,6 @@ const Image = styled('img')({
     objectFit: 'cover',
 });
 
-// Styled icons
 const EditIcon = styled(Edit)``;
 const DeleteIcon = styled(Delete)``;
 const Heading = styled(Typography)``;
@@ -63,16 +62,15 @@ const DetailView = () => {
         }
         try {
             const response = await API.deletePost(post._id);
-            console.log('Delete response:', response);
             if (response.isSuccess) {
                 navigate('/');
             } else {
                 console.error('Delete failed:', response.msg);
             }
         } catch (error) {
-            console.error('Error deleting post:', error.message);
+            console.error('Error deleting post:', error.msg);
         }
-    };
+    };    
 
     return (
         <Container>
