@@ -1,13 +1,11 @@
-
 import { Button, Table, TableHead, TableRow, TableCell, TableBody, styled } from '@mui/material';
 import { Link, useSearchParams } from 'react-router-dom';
-
 import { categories } from '../../constants/data';
 
 const StyledTable = styled(Table)`
     border: 1px solid rgba(224, 224, 224, 1);
 `;
-    
+
 const StyledButton = styled(Button)`
     margin: 20px;
     width: 85%;
@@ -15,7 +13,7 @@ const StyledButton = styled(Button)`
     color: #fff;
     text-decoration: none;
 `;
-    
+
 const StyledLink = styled(Link)`
     text-decoration: none;
     color: inherit;
@@ -35,9 +33,7 @@ const Categories = () => {
                 <TableHead>
                     <TableRow>
                         <TableCell>
-                            <StyledLink to={"/"}>
-                                All Categories
-                            </StyledLink>
+                            <StyledLink to={"/"}>All Categories</StyledLink>
                         </TableCell>
                     </TableRow>
                 </TableHead>
@@ -46,7 +42,7 @@ const Categories = () => {
                         categories.map(category => (
                             <TableRow key={category.id}>
                                 <TableCell>
-                                    <StyledLink to={`/?category=${category.type}`}>
+                                    <StyledLink to={`/?category=${category.type}`}> {/* Make sure category links are correct */}
                                         {category.type}
                                     </StyledLink>
                                 </TableCell>
@@ -56,7 +52,7 @@ const Categories = () => {
                 </TableBody>
             </StyledTable>
         </>
-    )
-}
+    );
+};
 
 export default Categories;

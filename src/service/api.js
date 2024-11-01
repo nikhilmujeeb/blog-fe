@@ -12,6 +12,7 @@ const axiosInstance = axios.create({
     },
 });
 
+// Authorization Interceptor
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = sessionStorage.getItem('accessToken');
@@ -21,6 +22,7 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
+// Process Response
 const processResponse = (response) => {
     if (response?.status === 200 || response?.status === 201) {
         return { isSuccess: true, data: response.data };
@@ -33,6 +35,7 @@ const processResponse = (response) => {
     };
 };
 
+// Error Processor
 const processError = (error) => {
     let message = API_NOTIFICATION_MESSAGES.networkError.message;
     console.error("Detailed API Error:", error); // Logs full error details
@@ -52,6 +55,7 @@ const processError = (error) => {
     return { isError: true, msg: message };
 };
 
+// Dynamic API Builder
 const API = {};
 for (const [key, value] of Object.entries(SERVICE_URLS)) {
     API[key] = (body, params, showUploadProgress) => {
@@ -73,6 +77,13 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
             .catch(processError);
     };
 }
+
+// New method to get all posts with category filtering
+API.getAllPosts = async ({ category }) => {
+    return await axiosInstance.get(`/api/posts`, { params: { category } })
+        .then(processResponse)
+        .catch(processError);
+};
 
 API.getPostById = async (id) => {
     return await axiosInstance.get(`/api/post/${id}`)
