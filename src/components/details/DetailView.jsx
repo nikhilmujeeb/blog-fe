@@ -1,8 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
-import { Box, Typography, styled } from '@mui/material';
+import { Box, Typography, styled, Button } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
 import { Link, useNavigate, useParams } from 'react-router-dom';
-
 import { API } from '../../service/api';
 import { DataContext } from '../../context/DataProvider';
 import Comments from './comments/Comments';
@@ -20,15 +19,11 @@ const Image = styled('img')({
     objectFit: 'cover',
 });
 
-const EditIcon = styled(Edit)``;
-const DeleteIcon = styled(Delete)``;
-const Heading = styled(Typography)``;
-const Author = styled(Box)``;
-
 const DetailView = () => {
     const url = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
     
     const [post, setPost] = useState({});
+    const [image, setImage] = useState(null);
     const { account } = useContext(DataContext);
     const navigate = useNavigate();
     const { id } = useParams();
@@ -40,9 +35,7 @@ const DetailView = () => {
                 return;
             }
             try {
-                console.log('Fetching post with id:', id);
                 const response = await API.getPostById(id);
-                
                 if (response.isSuccess) {
                     setPost(response.data);
                 } else {
@@ -70,7 +63,28 @@ const DetailView = () => {
         } catch (error) {
             console.error('Error deleting post:', error.msg);
         }
-    };    
+    };
+
+    const handleImageUpload = async (event) => {
+        const file = event.target.files[0];
+        const formData = new FormData();
+        formData.append('file', file);
+
+        try {
+            const response = await API.uploadImage(formData); // Call your upload image API
+            if (response.isSuccess) {
+                // Update the post with the new image URL
+                setPost((prevPost) => ({
+                    ...prevPost,
+                    picture: response.data.url, // Assuming the URL comes back as data.url
+                }));
+            } else {
+                console.error('Image upload failed:', response.msg);
+            }
+        } catch (error) {
+            console.error('Error uploading image:', error.msg);
+        }
+    };
 
     return (
         <Container>
@@ -92,6 +106,13 @@ const DetailView = () => {
                 <Typography style={{marginLeft: 'auto'}}>{new Date(post.createdDate).toDateString()}</Typography>
             </Author>
             <Typography>{post.description}</Typography>
+            
+            {account.username === post.username && (
+                <Box>
+                    <input type="file" onChange={handleImageUpload} />
+                </Box>
+            )}
+
             <Comments post={post} />
         </Container>
     );

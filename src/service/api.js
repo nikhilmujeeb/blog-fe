@@ -38,7 +38,7 @@ const processResponse = (response) => {
 // Error Processor
 const processError = (error) => {
     let message = API_NOTIFICATION_MESSAGES.networkError.message;
-    console.error("Detailed API Error:", error); // Logs full error details
+    console.error("Detailed API Error:", error);
 
     if (error.response) {
         const { status, data } = error.response;
@@ -78,7 +78,16 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
     };
 }
 
-// New method to get all posts with category filtering
+// New method to upload images
+API.uploadImage = async (formData) => {
+    return await axiosInstance.post('/file/upload', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data',
+        },
+    }).then(processResponse).catch(processError);
+};
+
+// Update your existing API methods as needed
 API.getAllPosts = async ({ category }) => {
     return await axiosInstance.get(`/api/posts`, { params: { category } })
         .then(processResponse)
