@@ -36,6 +36,10 @@ const DetailView = () => {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (!/^[a-fA-F0-9]{24}$/.test(id)) {
+                console.error('Invalid ObjectId format:', id);
+                return;
+            }
             try {
                 console.log('Fetching post with id:', id);
                 const response = await API.getPostById(id);

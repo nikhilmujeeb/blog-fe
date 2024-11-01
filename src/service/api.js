@@ -16,7 +16,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = sessionStorage.getItem('accessToken');
-        if (token) config.headers.Authorization = `${token}`;
+        if (token) config.headers.Authorization = `Bearer ${token}`;
         return config;
     },
     (error) => Promise.reject(error)
@@ -78,7 +78,7 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
     };
 }
 
-export const getPostById = async (id) => {
+API.getPostById = async (id) => {
     return await axiosInstance.get(`/api/post/${id}`)
         .then(processResponse)
         .catch(processError);
