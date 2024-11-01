@@ -79,7 +79,7 @@ const DetailView = () => {
             if (response.isSuccess) {
                 setPost((prevPost) => ({
                     ...prevPost,
-                    picture: response.data.url, // Update the post picture URL
+                    picture: response.data.url,
                 }));
             } else {
                 console.error('Image upload failed:', response.msg);
