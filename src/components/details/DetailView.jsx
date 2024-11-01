@@ -37,7 +37,7 @@ const DetailView = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                console.log('Fetching post with id:', id); // Log ID for debugging
+                console.log('Fetching post with id:', id);
                 const response = await API.getPostById(id);
                 
                 if (response.isSuccess) {
@@ -46,11 +46,11 @@ const DetailView = () => {
                     console.error('Failed to fetch post:', response.msg);
                 }
             } catch (error) {
-                console.error('Error fetching post:', error.message);
+                console.error('Error fetching post:', error.msg || error.message);
             }
         };
         fetchData();
-    }, [id]);
+    }, [id]);    
 
     const deleteBlog = async () => {  
         try {
