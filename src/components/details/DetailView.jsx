@@ -1,14 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
-
 import { Box, Typography, styled } from '@mui/material';
 import { Delete, Edit } from '@mui/icons-material';
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { API } from '../../service/api';
-
 import { DataContext } from '../../context/DataProvider';
-
-// components
 import Comments from './comments/Comments';
 
 const Container = styled(Box)(({ theme }) => ({
@@ -59,24 +55,29 @@ const DetailView = () => {
     
     const [post, setPost] = useState({});
     const { account } = useContext(DataContext);
-
     const navigate = useNavigate();
     const { id } = useParams();
     
     useEffect(() => {
         const fetchData = async () => {
-            let response = await API.getPostById(id);
-            if (response.isSuccess) {
-                setPost(response.data);
+            try {
+                const response = await API.getPostById(id);
+                if (response.isSuccess) {
+                    setPost(response.data);
+                } else {
+                    console.error('Failed to fetch post:', response.message);
+                }
+            } catch (error) {
+                console.error('Error fetching post:', error.message);
             }
-        }
+        };
         fetchData();
-    }, []);
+    }, [id]); // Added 'id' as a dependency
 
     const deleteBlog = async () => {  
         await API.deletePost(post._id);
-        navigate('/')
-    }
+        navigate('/');
+    };
 
     return (
         <Container>
@@ -86,7 +87,7 @@ const DetailView = () => {
                     account.username === post.username && 
                     <>  
                         <Link to={`/update/${post._id}`}><EditIcon color="primary" /></Link>
-                        <DeleteIcon onClick={() => deleteBlog()} color="error" />
+                        <DeleteIcon onClick={deleteBlog} color="error" />
                     </>
                 }
             </Box>
@@ -102,7 +103,7 @@ const DetailView = () => {
             <Typography>{post.description}</Typography>
             <Comments post={post} />
         </Container>
-    )
-}
+    );
+};
 
 export default DetailView;
