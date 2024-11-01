@@ -84,4 +84,10 @@ API.getPostById = async (id) => {
         .catch(processError);
 };
 
+API.updatePost = async (post) => {
+    return await axiosInstance.put(`/api/update/${post._id}`, post)
+        .then(processResponse)
+        .catch(processError);
+};
+
 export { API };
