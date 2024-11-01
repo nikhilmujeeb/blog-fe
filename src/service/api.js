@@ -78,16 +78,16 @@ for (const [key, value] of Object.entries(SERVICE_URLS)) {
     };
 }
 
-// New method to upload images
+// Method to upload images
 API.uploadImage = async (formData) => {
-    return await axiosInstance.post('/file/upload', formData, {
+    return await axiosInstance.post('/api/file/upload', formData, {
         headers: {
             'Content-Type': 'multipart/form-data',
         },
     }).then(processResponse).catch(processError);
 };
 
-// Update your existing API methods as needed
+// Existing API methods
 API.getAllPosts = async ({ category }) => {
     return await axiosInstance.get(`/api/posts`, { params: { category } })
         .then(processResponse)
@@ -110,14 +110,6 @@ API.deletePost = async (id) => {
     return await axiosInstance.delete(`/api/delete/${id}`)
         .then(processResponse)
         .catch(processError);
-};
-
-API.uploadImage = async (formData) => {
-    return await axiosInstance.post('/api/file/upload', formData, {
-        headers: {
-            'Content-Type': 'multipart/form-data',
-        },
-    }).then(processResponse).catch(processError);
 };
 
 export { API };
