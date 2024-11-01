@@ -68,8 +68,7 @@ const Update = () => {
                     setPost(response.data);
                     setImageURL(response.data.picture);
                 } else {
-                    setError('Failed to fetch post data.');
-                    setOpenSnackbar(true);
+                    throw new Error('Failed to fetch post data.');
                 }
             } catch (error) {
                 console.error('Error fetching post data:', error);
@@ -95,10 +94,10 @@ const Update = () => {
                             picture: response.data
                         }));
                     } else {
-                        setError('Error uploading file.');
-                        setOpenSnackbar(true);
+                        throw new Error('Error uploading file.');
                     }
                 } catch (error) {
+                    console.error('Error uploading file:', error);
                     setError('Error uploading file.');
                     setOpenSnackbar(true);
                 }
@@ -120,8 +119,7 @@ const Update = () => {
             if (response.isSuccess) {
                 navigate(`/post/${id}`);
             } else {
-                setError('Failed to update the post.');
-                setOpenSnackbar(true);
+                throw new Error('Failed to update the post.');
             }
         } catch (error) {
             console.error('Error updating post:', error);
