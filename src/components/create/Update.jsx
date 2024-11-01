@@ -52,7 +52,7 @@ const Update = () => {
     const navigate = useNavigate();
     const { id } = useParams();
     const [post, setPost] = useState(initialPost);
-    const [file, setFile] = useState('');
+    const [file, setFile] = useState(null);
     const [imageURL, setImageURL] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
@@ -60,8 +60,9 @@ const Update = () => {
 
     const defaultImage = 'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixlib=rb-1.2.1&w=1000&q=80';
 
+    // Fetch post data when component mounts
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchPostData = async () => {
             try {
                 const response = await API.getPostById(id);
                 if (response.isSuccess) {
@@ -70,20 +71,20 @@ const Update = () => {
                 } else {
                     throw new Error('Failed to fetch post data.');
                 }
-            } catch (error) {
-                console.error('Error fetching post data:', error);
+            } catch (err) {
+                console.error('Error fetching post data:', err);
                 setError('Error fetching post data.');
                 setOpenSnackbar(true);
             }
         };
-        fetchData();
+        fetchPostData();
     }, [id]);
 
+    // Upload image when a file is selected
     useEffect(() => {
         const uploadImage = async () => {
             if (file) {
                 const data = new FormData();
-                data.append('name', file.name);
                 data.append('file', file);
 
                 try {
@@ -96,8 +97,8 @@ const Update = () => {
                     } else {
                         throw new Error('Error uploading file.');
                     }
-                } catch (error) {
-                    console.error('Error uploading file:', error);
+                } catch (err) {
+                    console.error('Error uploading file:', err);
                     setError('Error uploading file.');
                     setOpenSnackbar(true);
                 }
@@ -106,6 +107,7 @@ const Update = () => {
         uploadImage();
     }, [file]);
 
+    // Update blog post
     const updateBlogPost = async () => {
         if (!post.title || !post.description) {
             setError('Title and description cannot be empty.');
@@ -121,8 +123,8 @@ const Update = () => {
             } else {
                 throw new Error('Failed to update the post.');
             }
-        } catch (error) {
-            console.error('Error updating post:', error);
+        } catch (err) {
+            console.error('Error updating post:', err);
             setError('An error occurred. Please try again.');
             setOpenSnackbar(true);
         } finally {
@@ -130,21 +132,25 @@ const Update = () => {
         }
     };
 
+    // Handle changes to input fields
     const handleChange = (e) => {
         setPost({ ...post, [e.target.name]: e.target.value });
     };
 
+    // Handle file input changes
     const handleFileChange = (e) => {
         const selectedFile = e.target.files[0];
-        setFile(selectedFile);
-
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            setImageURL(reader.result);
-        };
-        reader.readAsDataURL(selectedFile);
+        if (selectedFile) {
+            setFile(selectedFile);
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageURL(reader.result);
+            };
+            reader.readAsDataURL(selectedFile);
+        }
     };
 
+    // Close the Snackbar
     const handleCloseSnackbar = () => {
         setOpenSnackbar(false);
     };
