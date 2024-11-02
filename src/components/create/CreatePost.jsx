@@ -1,5 +1,3 @@
-// src/components/CreatePost.jsx
-
 import React, { useState, useEffect, useContext } from 'react';
 import {
     styled, Box, TextareaAutosize, Button, InputBase, FormControl, 
@@ -68,26 +66,27 @@ const CreatePost = () => {
     const url = file ? URL.createObjectURL(file) : post.picture || 
         'https://images.unsplash.com/photo-1543128639-4cb7e6eeef1b?ixid=MnwxMjA3fDB8MHxzZWFyY2h8Mnx8bGFwdG9wJTIwc2V0dXB8ZW58MHx8MHx8&ixlib=rb-1.2.1&w=1000&q=80';
 
-    useEffect(() => {
-        const uploadImage = async () => {
-            if (file) {
-                const data = new FormData();
-                data.append('file', file); // append file with the key 'file'
-
-                const response = await API.uploadImage(data); // Call the correct upload method
-                if (response.isSuccess) {
-                    setPost((prevPost) => ({
-                        ...prevPost,
-                        picture: response.data // adjust based on how your API returns the image URL
-                    }));
-                } else {
-                    console.error("Error uploading image:", response.msg); // Log error messages
-                }
-            }
-        };
+        useEffect(() => {
+            const uploadImage = async () => {
+                if (file) {
+                    const data = new FormData();
+                    data.append('file', file); // append file with the key 'file'
         
-        uploadImage();
-    }, [file]);
+                    const response = await API.uploadImage(data); // Call the correct upload method
+                    if (response.isSuccess) {
+                        setPost((prevPost) => ({
+                            ...prevPost,
+                            picture: response.data // adjust based on how your API returns the image URL
+                        }));
+                    } else {
+                        console.error("Error uploading image:", response.msg); // Log error messages
+                    }
+                }
+            };
+        
+            uploadImage();
+        }, [file]);
+        
 
     const handleChange = (e) => {
         setPost({ ...post, [e.target.name]: e.target.value });
@@ -165,6 +164,7 @@ const CreatePost = () => {
                     <MenuItem value="Movies">Movies</MenuItem>
                     <MenuItem value="Sports">Sports</MenuItem>
                     <MenuItem value="Tech">Tech</MenuItem>
+                    <MenuItem value="Fashion">Fashion</MenuItem>
                 </Select>
             </StyledFormControl>
 
@@ -172,15 +172,15 @@ const CreatePost = () => {
                 minRows={5}
                 placeholder="Tell your story..."
                 name="description"
-                onChange={handleChange}
                 value={post.description}
+                onChange={handleChange}
             />
 
             <Snackbar
                 open={error}
-                autoHideDuration={3000}
+                autoHideDuration={6000}
                 onClose={() => setError(false)}
-                message="Error occurred while creating post."
+                message="Failed to save the post. Please try again."
             />
         </Container>
     );

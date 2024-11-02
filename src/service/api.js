@@ -1,5 +1,3 @@
-// src/service/api.js
-
 import axios from 'axios';
 import { API_NOTIFICATION_MESSAGES, SERVICE_URLS } from '../constants/config';
 import { formatURL } from '../utils/common-utils';
